@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DNS Tunnel Detector</title>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .header h1 { font-size: 22px; color: #ffffff; }
+    .sim-badge {
+      font-size: 11px;
+      background: #f0a500;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+    #status {
+      font-size: 12px;
+      color: #8b949e;
+      margin-bottom: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .stat-val.danger { color: #ff4444; }
+    .stat-val.safe   { color: #3fb950; }
+    .stat-lbl {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+
+    #alert-banner {
+      display: none;
+      background: #3d0000;
+      border: 1px solid #ff4444;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #ff8888;
+    }
+    #alert-banner.visible { display: block; }
+    .alert-title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #ff4444;
+      margin-bottom: 4px;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .panel-title {
+      font-size: 12px;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    #log {
+      height: 420px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .log-normal { color: #3fb950; }
+    .log-tunnel {
+      color: #ff4444;
+      font-weight: bold;
+      background: #1a0000;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    #alerts-list {
+      height: 420px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .alert-item {
+      border-bottom: 1px solid #21262d;
+      padding: 8px 0;
+      color: #ff8888;
+      line-height: 1.5;
+    }
+    .alert-item:first-child { padding-top: 0; }
+    .alert-domain { font-weight: bold; word-break: break-all; }
+    .alert-meta { color: #6e7681; font-size: 11px; }
+    #no-alerts { color: #8b949e; font-size: 12px; }
+
+    .btn {
+      margin-top: 16px;
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .btn:hover { border-color: #8b949e; color: #c9d1d9; }
+
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .columns { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>DNS Tunnel Detector</h1>
+    <span class="sim-badge">SIMULATION MODE</span>
+  </div>
+  <div id="status">Connecting to stream...</div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" id="s-total">0</div>
+      <div class="stat-lbl">Queries analyzed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val safe" id="s-normal">0</div>
+      <div class="stat-lbl">Normal</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val danger" id="s-tunnel">0</div>
+      <div class="stat-lbl">Tunnels detected</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val danger" id="s-rate">0%</div>
+      <div class="stat-lbl">Detection rate</div>
+    </div>
+  </div>
+
+  <div id="alert-banner">
+    <div class="alert-title">TUNNEL DETECTED</div>
+    <div id="alert-text"></div>
+  </div>
+
+  <div class="columns">
+    <div class="panel">
+      <div class="panel-title">Live query log</div>
+      <div id="log"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Alerts history</div>
+      <div id="alerts-list">
+        <div id="no-alerts">No tunnels detected yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="resetDemo()">Reset demo</button>
+
+  <script>
+    let total = 0, normal = 0, tunnels = 0;
+    let alertTimer = null;
+
+    function updateStats() {
+      document.getElementById('s-total').textContent  = total;
+      document.getElementById('s-normal').textContent = normal;
+      document.getElementById('s-tunnel').textContent = tunnels;
+      const rate = total > 0 ? Math.round(tunnels / total * 100) : 0;
+      document.getElementById('s-rate').textContent   = rate + '%';
+    }
+
+    function showAlertBanner(domain, confidence) {
+      const banner = document.getElementById('alert-banner');
+      document.getElementById('alert-text').textContent =
+        domain + ' — confidence: ' + confidence + '%';
+      banner.classList.add('visible');
+      clearTimeout(alertTimer);
+      alertTimer = setTimeout(() => banner.classList.remove('visible'), 4000);
+    }
+
+    function addToAlertsList(timestamp, domain, confidence) {
+      const list = document.getElementById('alerts-list');
+      const noAlerts = document.getElementById('no-alerts');
+      if (noAlerts) noAlerts.remove();
+      const item = document.createElement('div');
+      item.className = 'alert-item';
+      item.innerHTML =
+        '<div class="alert-domain">' + domain + '</div>' +
+        '<div class="alert-meta">' + timestamp +
+        ' &nbsp;|&nbsp; conf: ' + confidence + '%</div>';
+      list.insertBefore(item, list.firstChild);
+    }
+
+    function addToLog(d) {
+      const log = document.getElementById('log');
+      const row = document.createElement('div');
+      if (d.prediction === 1) {
+        row.className = 'log-tunnel';
+        row.textContent =
+          d.timestamp + '  [TUNNEL]  ' + d.domain + '  (' + d.confidence + '%)';
+      } else {
+        row.className = 'log-normal';
+        row.textContent =
+          d.timestamp + '  [NORMAL]  ' + d.domain + '  (' + d.confidence + '%)';
+      }
+      log.insertBefore(row, log.firstChild);
+    }
+
+    function connect() {
+      document.getElementById('status').textContent = 'Connecting...';
+      const src = new EventSource('/stream');
+
+      src.onopen = function() {
+        document.getElementById('status').textContent =
+          'Connected — live monitoring active';
+      };
+
+      src.onmessage = function(e) {
+        try {
+          const d = JSON.parse(e.data);
+          document.getElementById('status').textContent =
+            'Live — monitoring DNS queries in real time';
+          total++;
+          if (d.prediction === 1) {
+            tunnels++;
+            showAlertBanner(d.domain, d.confidence);
+            addToAlertsList(d.timestamp, d.domain, d.confidence);
+          } else {
+            normal++;
+          }
+          updateStats();
+          addToLog(d);
+        } catch(err) {
+          console.error('Parse error:', err);
+        }
+      };
+
+      src.onerror = function() {
+        document.getElementById('status').textContent =
+          'Stream error — retrying in 2s...';
+        src.close();
+        setTimeout(connect, 2000);
+      };
+    }
+
+    function resetDemo() {
+      fetch('/reset', { method: 'POST' }).then(() => {
+        total = 0; normal = 0; tunnels = 0;
+        updateStats();
+        document.getElementById('log').innerHTML = '';
+        document.getElementById('alerts-list').innerHTML =
+          '<div id="no-alerts">No tunnels detected yet.</div>';
+        document.getElementById('alert-banner').classList.remove('visible');
+      });
+    }
+
+    connect();
+  </script>
+</body>
+</html>
