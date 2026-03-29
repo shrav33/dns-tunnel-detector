@@ -1,301 +1,467 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>DNS Tunnel Detector</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Courier New', monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
-    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    .header h1 { font-size: 22px; color: #ffffff; }
-    .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .sim-badge { font-size: 11px; background: #f0a500; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
-    .v3-badge  { font-size: 11px; background: #6e40c9; color: #fff; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
-    #status { font-size: 12px; color: #8b949e; margin-bottom: 16px; }
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .stat { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 14px; text-align: center; }
-    .stat-val { font-size: 28px; font-weight: bold; color: #ffffff; }
-    .stat-val.danger { color: #ff4444; }
-    .stat-val.safe   { color: #3fb950; }
-    .stat-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-    .model-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .mstat { background: #0d2137; border: 1px solid #1f4068; border-radius: 10px; padding: 14px; text-align: center; }
-    .mstat-val { font-size: 22px; font-weight: bold; color: #58a6ff; }
-    .mstat-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-    #alert-banner { display: none; background: #3d0000; border: 1px solid #ff4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #ff8888; }
-    #alert-banner.visible { display: block; }
-    .alert-title { font-weight: bold; font-size: 14px; color: #ff4444; margin-bottom: 4px; }
-    .columns { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; margin-bottom: 16px; }
-    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 14px; }
-    .panel-title { font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
-    #log { height: 360px; overflow-y: auto; font-size: 12px; line-height: 1.7; }
-    .log-normal { color: #3fb950; }
-    .log-tunnel { color: #ff4444; font-weight: bold; background: #1a0000; padding: 1px 4px; border-radius: 4px; }
-    #alerts-list { height: 360px; overflow-y: auto; font-size: 12px; }
-    .alert-item { border-bottom: 1px solid #21262d; padding: 8px 0; color: #ff8888; line-height: 1.5; }
-    .alert-domain { font-weight: bold; word-break: break-all; }
-    .alert-meta { color: #6e7681; font-size: 11px; }
-    #no-alerts { color: #8b949e; font-size: 12px; }
-    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .cm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-    .cm-cell { border-radius: 8px; padding: 14px; text-align: center; }
-    .cm-cell .cm-val { font-size: 22px; font-weight: bold; }
-    .cm-cell .cm-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-    .cm-tn { background: #0d2137; border: 1px solid #1f4068; } .cm-tn .cm-val { color: #3fb950; }
-    .cm-fp { background: #1a1000; border: 1px solid #3d2800; } .cm-fp .cm-val { color: #f0a500; }
-    .cm-fn { background: #1a0a00; border: 1px solid #3d1500; } .cm-fn .cm-val { color: #ff6b35; }
-    .cm-tp { background: #0d2100; border: 1px solid #1a4200; } .cm-tp .cm-val { color: #3fb950; }
-    .v3-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
-    .cmp-table th { color: #8b949e; text-align: left; padding: 6px 8px; border-bottom: 1px solid #30363d; font-weight: normal; font-size: 11px; text-transform: uppercase; }
-    .cmp-table td { padding: 8px 8px; border-bottom: 1px solid #21262d; color: #c9d1d9; }
-    .cmp-table tr.best-row td { color: #3fb950; }
-    .best-badge { font-size: 10px; background: #0d2100; color: #3fb950; border: 1px solid #1a4200; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
-    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn { background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 12px; }
-    .btn:hover { border-color: #8b949e; color: #c9d1d9; }
-    .btn.green { border-color: #238636; color: #3fb950; }
-    .btn.green:hover { background: #0d2100; }
-    @media (max-width: 700px) {
-      .stats, .model-bar { grid-template-columns: repeat(2, 1fr); }
-      .columns, .charts-row, .v3-row { grid-template-columns: 1fr; }
-      #evasion-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    :root {
+      --bg:#070b12; --bg2:#0c1220; --bg3:#111827;
+      --border:#1e2d45; --border2:#243550;
+      --accent:#00d4ff; --green:#00ff88; --red:#ff3b5c;
+      --amber:#ffaa00; --purple:#8b5cf6;
+      --text:#e2e8f0; --text2:#94a3b8; --text3:#4a6080;
+      --sidebar-w:220px;
     }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.012) 2px,rgba(0,212,255,.012) 4px);pointer-events:none;z-index:9999;}
+
+    /* Sidebar */
+    .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+    .sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+    .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px;}
+    .logo-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--text);letter-spacing:.08em;text-transform:uppercase;}
+    .logo-sub{font-size:9px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-top:2px;}
+    .nav{padding:12px 0;flex:1;}
+    .nav-section{font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;padding:12px 16px 6px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:11px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .15s;letter-spacing:.04em;}
+    .nav-item:hover{background:rgba(0,212,255,.05);color:var(--text);}
+    .nav-item.active{background:rgba(0,212,255,.08);color:var(--accent);border-left-color:var(--accent);}
+    .nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.6;flex-shrink:0;}
+    .nav-badge{margin-left:auto;font-size:9px;background:var(--red);color:#fff;padding:1px 5px;border-radius:8px;}
+    .sidebar-status{padding:12px 16px;border-top:1px solid var(--border);}
+    .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* Main */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .topbar-left{display:flex;align-items:center;gap:12px;}
+    .page-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:var(--text);letter-spacing:.06em;text-transform:uppercase;}
+    .tb-badge{font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.06em;}
+    .tb-v3{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3);}
+    .tb-live{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+    .tb-warn{background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.3);}
+    .topbar-right{font-size:10px;color:var(--text3);}
+    .content{padding:20px 24px;flex:1;}
+
+    /* Stat cards */
+    .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
+    .stat-card:hover{border-color:var(--border2);}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+    .sc-blue::before{background:linear-gradient(90deg,var(--accent),transparent);}
+    .sc-green::before{background:linear-gradient(90deg,var(--green),transparent);}
+    .sc-red::before{background:linear-gradient(90deg,var(--red),transparent);}
+    .sc-amber::before{background:linear-gradient(90deg,var(--amber),transparent);}
+    .stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+    .stat-value{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1;}
+    .sv-blue{color:var(--accent);} .sv-green{color:var(--green);} .sv-red{color:var(--red);} .sv-amber{color:var(--amber);}
+    .stat-sub{font-size:10px;color:var(--text3);margin-top:6px;}
+
+    /* Model bar */
+    .model-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;}
+    .model-card{background:linear-gradient(135deg,rgba(0,212,255,.05),rgba(139,92,246,.05));border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:14px 16px;text-align:center;}
+    .model-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent);}
+    .model-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em;}
+
+    /* Alert banner */
+    #alert-banner{display:none;background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--red);animation:slideIn .3s ease;}
+    @keyframes slideIn{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}
+    #alert-banner.visible{display:flex;align-items:center;gap:10px;}
+    .alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1s infinite;}
+
+    /* Panels */
+    .panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .panel-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;}
+    .panel-badge{font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2);}
+
+    /* Layouts */
+    .two-col{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px;}
+    .two-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+
+    /* Log */
+    #log{height:300px;overflow-y:auto;font-size:11px;line-height:1.8;}
+    #log::-webkit-scrollbar{width:3px;}
+    #log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+    .log-normal{color:var(--green);}
+    .log-tunnel{color:var(--red);font-weight:500;}
+    .log-tunnel span{background:rgba(255,59,92,.08);padding:1px 6px;border-radius:3px;border-left:2px solid var(--red);display:block;}
+
+    /* Alerts */
+    #alerts-list{height:300px;overflow-y:auto;font-size:11px;}
+    #alerts-list::-webkit-scrollbar{width:3px;}
+    #alerts-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+    .alert-item{border-bottom:1px solid rgba(255,59,92,.1);padding:8px 0;}
+    .alert-domain{color:var(--red);font-weight:500;word-break:break-all;font-size:11px;}
+    .alert-meta{color:var(--text3);font-size:10px;margin-top:2px;}
+    #no-alerts{color:var(--text3);font-size:11px;}
+
+    /* CM */
+    .cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .cm-cell{border-radius:8px;padding:14px;text-align:center;}
+    .cm-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
+    .cm-lbl{font-size:10px;color:var(--text3);margin-top:4px;}
+    .cm-tn{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);} .cm-tn .cm-val{color:var(--green);}
+    .cm-fp{background:rgba(255,170,0,.06);border:1px solid rgba(255,170,0,.15);} .cm-fp .cm-val{color:var(--amber);}
+    .cm-fn{background:rgba(255,59,92,.06);border:1px solid rgba(255,59,92,.15);} .cm-fn .cm-val{color:var(--red);}
+    .cm-tp{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);} .cm-tp .cm-val{color:var(--green);}
+
+    /* Table */
+    .cmp-table{width:100%;border-collapse:collapse;font-size:11px;}
+    .cmp-table th{color:var(--text3);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.08em;}
+    .cmp-table td{padding:9px 8px;border-bottom:1px solid rgba(30,45,69,.5);color:var(--text2);}
+    .cmp-table tr.best-row td{color:var(--green);}
+    .best-badge{font-size:9px;background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2);padding:1px 6px;border-radius:8px;margin-left:6px;}
+
+    /* Evasion */
+    .ev-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+    .ev-cell{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;border-top-width:2px;transition:border-color .2s;}
+    .ev-name{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+    .ev-val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;}
+    .ev-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+    .ev-badge{font-size:9px;padding:2px 6px;border-radius:8px;display:inline-block;margin-top:6px;}
+
+    /* Buttons */
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;padding-top:4px;}
+    .btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;transition:all .15s;letter-spacing:.04em;}
+    .btn:hover{border-color:var(--text3);color:var(--text);background:rgba(255,255,255,.03);}
+    .btn.accent{border-color:rgba(0,212,255,.4);color:var(--accent);}
+    .btn.accent:hover{background:rgba(0,212,255,.08);}
+    .timeline-wrap{position:relative;height:180px;}
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>🔍 DNS Tunnel Detector</h1>
-    <div class="badges">
-      <span class="v3-badge">V3 — MODEL COMPARISON</span>
-      <span class="sim-badge">SIMULATION MODE</span>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🔍</div>
+    <div class="logo-title">DNS Detector</div>
+    <div class="logo-sub">Threat Intelligence</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Monitor</div>
+    <div class="nav-item active"><div class="nav-dot"></div>Live Dashboard</div>
+    <div class="nav-item"><div class="nav-dot"></div>Query Log</div>
+    <div class="nav-item"><div class="nav-dot"></div>Alerts <span class="nav-badge" id="nav-alert-count">0</span></div>
+    <div class="nav-section">Analysis</div>
+    <div class="nav-item"><div class="nav-dot"></div>Model Stats</div>
+    <div class="nav-item"><div class="nav-dot"></div>Evasion Tests</div>
+    <div class="nav-item"><div class="nav-dot"></div>ROC Curves</div>
+    <div class="nav-section">System</div>
+    <div class="nav-item"><div class="nav-dot"></div>Settings</div>
+  </nav>
+  <div class="sidebar-status">
+    <span class="status-dot"></span>
+    <span style="font-size:10px;color:var(--text2);">System Active</span>
+    <div style="font-size:9px;color:var(--text3);margin-top:4px;">RF Model · 95.43% Accuracy</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title">Live Monitor</div>
+      <span class="tb-badge tb-v3">V3 — Model Comparison</span>
+      <span class="tb-badge tb-live" id="topbar-status">● Connecting...</span>
     </div>
-  </div>
-  <div id="status">Connecting to stream...</div>
-
-  <div class="stats">
-    <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Queries analyzed</div></div>
-    <div class="stat"><div class="stat-val safe" id="s-normal">0</div><div class="stat-lbl">Normal</div></div>
-    <div class="stat"><div class="stat-val danger" id="s-tunnel">0</div><div class="stat-lbl">Tunnels detected</div></div>
-    <div class="stat"><div class="stat-val danger" id="s-rate">0%</div><div class="stat-lbl">Detection rate</div></div>
+    <div class="topbar-right" id="topbar-time"></div>
   </div>
 
-  <div class="model-bar">
-    <div class="mstat"><div class="mstat-val" id="m-acc">—</div><div class="mstat-lbl">Model Accuracy</div></div>
-    <div class="mstat"><div class="mstat-val" id="m-roc">—</div><div class="mstat-lbl">ROC-AUC Score</div></div>
-    <div class="mstat"><div class="mstat-val" id="m-samples">—</div><div class="mstat-lbl">Training Samples</div></div>
-    <div class="mstat"><div class="mstat-val" id="m-features">—</div><div class="mstat-lbl">Features Used</div></div>
-  </div>
+  <div class="content">
 
-  <div id="alert-banner">
-    <div class="alert-title">⚠ TUNNEL DETECTED</div>
-    <div id="alert-text"></div>
-  </div>
-
-  <div class="columns">
-    <div class="panel">
-      <div class="panel-title">Live query log</div>
-      <div id="log"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">Alerts history</div>
-      <div id="alerts-list"><div id="no-alerts">No tunnels detected yet.</div></div>
-    </div>
-  </div>
-
-  <div class="charts-row">
-    <div class="panel">
-      <div class="panel-title">Feature importance</div>
-      <canvas id="featureChart" height="220"></canvas>
-    </div>
-    <div class="panel">
-      <div class="panel-title">Confusion matrix (test set)</div>
-      <div class="cm-grid">
-        <div class="cm-cell cm-tn"><div class="cm-val" id="cm-tn">—</div><div class="cm-lbl">True Negative<br>Correctly benign</div></div>
-        <div class="cm-cell cm-fp"><div class="cm-val" id="cm-fp">—</div><div class="cm-lbl">False Positive<br>Wrongly flagged</div></div>
-        <div class="cm-cell cm-fn"><div class="cm-val" id="cm-fn">—</div><div class="cm-lbl">False Negative<br>Missed attacks</div></div>
-        <div class="cm-cell cm-tp"><div class="cm-val" id="cm-tp">—</div><div class="cm-lbl">True Positive<br>Correctly caught</div></div>
+    <div class="stat-grid">
+      <div class="stat-card sc-blue">
+        <div class="stat-label">Total Queries</div>
+        <div class="stat-value sv-blue" id="s-total">0</div>
+        <div class="stat-sub">analyzed this session</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-label">Normal Traffic</div>
+        <div class="stat-value sv-green" id="s-normal">0</div>
+        <div class="stat-sub">benign DNS queries</div>
+      </div>
+      <div class="stat-card sc-red">
+        <div class="stat-label">Tunnels Detected</div>
+        <div class="stat-value sv-red" id="s-tunnel">0</div>
+        <div class="stat-sub">malicious queries flagged</div>
+      </div>
+      <div class="stat-card sc-amber">
+        <div class="stat-label">Detection Rate</div>
+        <div class="stat-value sv-amber" id="s-rate">0%</div>
+        <div class="stat-sub">of all queries flagged</div>
       </div>
     </div>
-  </div>
 
-  <div class="v3-row">
-    <div class="panel">
-      <div class="panel-title">ROC curve — all 3 models</div>
-      <canvas id="rocChart" height="220"></canvas>
+    <div class="model-grid">
+      <div class="model-card"><div class="model-val" id="m-acc">—</div><div class="model-lbl">Model Accuracy</div></div>
+      <div class="model-card"><div class="model-val" id="m-roc">—</div><div class="model-lbl">ROC-AUC Score</div></div>
+      <div class="model-card"><div class="model-val" id="m-samples">—</div><div class="model-lbl">Training Samples</div></div>
+      <div class="model-card"><div class="model-val" id="m-features">—</div><div class="model-lbl">Features Used</div></div>
     </div>
-    <div class="panel">
-      <div class="panel-title">Model comparison</div>
-      <table class="cmp-table">
-        <thead>
-          <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th></tr>
-        </thead>
-        <tbody id="cmp-body">
-          <tr><td colspan="6" style="color:#8b949e;padding:8px;">Loading...</td></tr>
-        </tbody>
-      </table>
+
+    <div id="alert-banner">
+      <div class="alert-dot"></div>
+      <span><strong>TUNNEL DETECTED</strong> &nbsp;<span id="alert-text"></span></span>
     </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">DNS Query Timeline</div>
+        <div class="panel-badge">Live · 2s intervals</div>
+      </div>
+      <div class="timeline-wrap"><canvas id="timelineChart"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Live Query Log</div>
+          <div class="panel-badge" id="log-count">0 queries</div>
+        </div>
+        <div id="log"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Alerts History</div>
+          <div class="panel-badge" id="alert-count-badge">0 alerts</div>
+        </div>
+        <div id="alerts-list"><div id="no-alerts">No tunnels detected yet.</div></div>
+      </div>
+    </div>
+
+    <div class="two-equal">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Feature Importance</div><div class="panel-badge">Top 10</div></div>
+        <canvas id="featureChart" height="220"></canvas>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Confusion Matrix</div><div class="panel-badge">Test Set</div></div>
+        <div class="cm-grid" style="margin-top:8px;">
+          <div class="cm-cell cm-tn"><div class="cm-val" id="cm-tn">—</div><div class="cm-lbl">True Negative<br>Correctly benign</div></div>
+          <div class="cm-cell cm-fp"><div class="cm-val" id="cm-fp">—</div><div class="cm-lbl">False Positive<br>Wrongly flagged</div></div>
+          <div class="cm-cell cm-fn"><div class="cm-val" id="cm-fn">—</div><div class="cm-lbl">False Negative<br>Missed attacks</div></div>
+          <div class="cm-cell cm-tp"><div class="cm-val" id="cm-tp">—</div><div class="cm-lbl">True Positive<br>Correctly caught</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-equal">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">ROC Curve — All 3 Models</div></div>
+        <canvas id="rocChart" height="220"></canvas>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Model Comparison</div></div>
+        <table class="cmp-table">
+          <thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th></tr></thead>
+          <tbody id="cmp-body"><tr><td colspan="6" style="color:var(--text3);padding:8px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Evasion Attack Testing — Where The Model Struggles</div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:14px;line-height:1.7;" id="evasion-summary"></div>
+      <div class="ev-grid" id="evasion-grid"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="resetDemo()">↺ Reset Session</button>
+      <button class="btn accent" onclick="downloadAlerts()">⬇ Export Alerts CSV</button>
+    </div>
+
   </div>
+</main>
 
-  <!-- V3: Evasion results -->
-  <div class="panel" style="margin-bottom:16px;">
-    <div class="panel-title">Evasion attack testing — where the model struggles</div>
-    <div id="evasion-summary" style="font-size:12px;color:#8b949e;margin-bottom:12px;"></div>
-    <div id="evasion-grid" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;"></div>
-  </div>
+<script>
+  let total=0,normal=0,tunnels=0,alertTimer=null;
+  const maxPts=40;
+  const tlNormal=Array(maxPts).fill(0),tlTunnel=Array(maxPts).fill(0),tlLabels=Array(maxPts).fill('');
+  let tlChart=null,tickN=0,tickT=0;
 
-  <div class="btn-row">
-    <button class="btn" onclick="resetDemo()">Reset demo</button>
-    <button class="btn green" onclick="downloadAlerts()">⬇ Download alerts CSV</button>
-  </div>
-
-  <script>
-    let total=0, normal=0, tunnels=0, alertTimer=null;
-
-    function loadModelStats() {
-      fetch('/model-stats').then(r=>r.json()).then(stats => {
-        document.getElementById('m-acc').textContent = (stats.accuracy*100).toFixed(2)+'%';
-        document.getElementById('m-roc').textContent = stats.roc_auc.toFixed(4);
-        document.getElementById('m-samples').textContent = stats.total_samples.toLocaleString();
-        document.getElementById('m-features').textContent = stats.features_used.length;
-        const cm = stats.confusion_matrix;
-        document.getElementById('cm-tn').textContent = cm[0][0].toLocaleString();
-        document.getElementById('cm-fp').textContent = cm[0][1].toLocaleString();
-        document.getElementById('cm-fn').textContent = cm[1][0].toLocaleString();
-        document.getElementById('cm-tp').textContent = cm[1][1].toLocaleString();
-        const fi = stats.feature_importances;
-        const sorted = Object.entries(fi).sort((a,b)=>b[1]-a[1]).slice(0,10);
-        new Chart(document.getElementById('featureChart').getContext('2d'), {
-          type:'bar',
-          data:{ labels:sorted.map(x=>x[0].replace(/_/g,' ')), datasets:[{ data:sorted.map(x=>(x[1]*100).toFixed(2)), backgroundColor:'#1f4068', borderColor:'#58a6ff', borderWidth:1, borderRadius:4 }] },
-          options:{ indexAxis:'y', responsive:true, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}}, y:{ticks:{color:'#c9d1d9',font:{size:10}},grid:{color:'#21262d'}} } }
-        });
-      }).catch(e=>console.error('Stats error:',e));
-    }
-
-    function loadComparison() {
-      fetch('/comparison-stats').then(r=>r.json()).then(data => {
-        const best = data.best_model;
-        const tbody = document.getElementById('cmp-body');
-        tbody.innerHTML = '';
-        Object.entries(data.models).forEach(([name, m]) => {
-          const isBest = name === best;
-          const tr = document.createElement('tr');
-          if (isBest) tr.className = 'best-row';
-          tr.innerHTML = `<td>${name}${isBest?'<span class="best-badge">BEST</span>':''}</td><td>${(m.accuracy*100).toFixed(2)}%</td><td>${m.precision.toFixed(3)}</td><td>${m.recall.toFixed(3)}</td><td>${m.f1.toFixed(3)}</td><td>${m.roc_auc.toFixed(4)}</td>`;
-          tbody.appendChild(tr);
-        });
-        const colors = { 'Random Forest':{line:'#3fb950'}, 'XGBoost':{line:'#58a6ff'}, 'Logistic Regression':{line:'#f0a500'} };
-        const datasets = Object.entries(data.roc_curves).map(([name,d])=>({
-          label:`${name} (AUC=${d.auc})`,
-          data: d.fpr.map((x,i)=>({x,y:d.tpr[i]})),
-          borderColor: colors[name]?.line||'#fff',
-          borderWidth:2, pointRadius:0, fill:false, tension:0.3, showLine:true
-        }));
-        datasets.push({ label:'Random chance', data:[{x:0,y:0},{x:1,y:1}], borderColor:'#30363d', borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false, showLine:true });
-        new Chart(document.getElementById('rocChart').getContext('2d'), {
-          type:'scatter', data:{ datasets },
-          options:{ responsive:true, plugins:{ legend:{ display:true, labels:{ color:'#8b949e', font:{size:10}, boxWidth:12 } } },
-            scales:{ x:{ type:'linear', min:0, max:1, title:{display:true,text:'False Positive Rate',color:'#8b949e',font:{size:10}}, ticks:{color:'#8b949e',font:{size:10}}, grid:{color:'#21262d'} },
-              y:{ type:'linear', min:0, max:1, title:{display:true,text:'True Positive Rate',color:'#8b949e',font:{size:10}}, ticks:{color:'#8b949e',font:{size:10}}, grid:{color:'#21262d'} } } }
-        });
-      }).catch(e=>console.error('Comparison error:',e));
-    }
-
-    function loadEvasion() {
-      fetch('/evasion-stats').then(r=>r.json()).then(data => {
-        document.getElementById('evasion-summary').innerHTML =
-          `Avg detection across all evasion attacks: <span style="color:#ff4444;font-weight:bold;">${data.average_detection}%</span>
-          &nbsp;|&nbsp; Easiest: <span style="color:#3fb950;">${data.easiest_attack}</span>
-          &nbsp;|&nbsp; Hardest: <span style="color:#ff4444;">${data.hardest_attack}</span>`;
-        const grid = document.getElementById('evasion-grid');
-        grid.innerHTML = '';
-        const threatColors = {LOW:'#3fb950',MEDIUM:'#f0a500',HIGH:'#ff6b35',CRITICAL:'#ff4444'};
-        Object.entries(data.attacks).forEach(([name, a]) => {
-          const color = threatColors[a.threat_level] || '#fff';
-          const cell = document.createElement('div');
-          cell.style.cssText = 'background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px;';
-          cell.innerHTML = `
-            <div style="font-size:10px;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">${name}</div>
-            <div style="font-size:22px;font-weight:bold;color:${color};">${a.detection_rate}%</div>
-            <div style="font-size:11px;color:#8b949e;margin-top:4px;">detected</div>
-            <div style="font-size:10px;margin-top:6px;padding:2px 6px;border-radius:10px;display:inline-block;background:${color}22;color:${color};border:1px solid ${color}44;">${a.threat_level}</div>
-          `;
-          grid.appendChild(cell);
-        });
-      }).catch(e=>console.error('Evasion error:',e));
-    }
-
-    function updateStats() {
-      document.getElementById('s-total').textContent = total;
-      document.getElementById('s-normal').textContent = normal;
-      document.getElementById('s-tunnel').textContent = tunnels;
-      document.getElementById('s-rate').textContent = (total>0?Math.round(tunnels/total*100):0)+'%';
-    }
-
-    function showAlertBanner(domain, confidence) {
-      const banner = document.getElementById('alert-banner');
-      document.getElementById('alert-text').textContent = domain+' — confidence: '+confidence+'%';
-      banner.classList.add('visible');
-      clearTimeout(alertTimer);
-      alertTimer = setTimeout(()=>banner.classList.remove('visible'), 4000);
-    }
-
-    function addToAlertsList(timestamp, domain, confidence) {
-      const list = document.getElementById('alerts-list');
-      const noAlerts = document.getElementById('no-alerts');
-      if (noAlerts) noAlerts.remove();
-      const item = document.createElement('div');
-      item.className = 'alert-item';
-      item.innerHTML = '<div class="alert-domain">'+domain+'</div><div class="alert-meta">'+timestamp+' &nbsp;|&nbsp; conf: '+confidence+'%</div>';
-      list.insertBefore(item, list.firstChild);
-    }
-
-    function addToLog(d) {
-      const log = document.getElementById('log');
-      const row = document.createElement('div');
-      if (d.prediction===1) {
-        row.className='log-tunnel';
-        row.textContent=d.timestamp+'  [TUNNEL]  '+d.domain+'  ('+d.confidence+'%)';
-      } else {
-        row.className='log-normal';
-        row.textContent=d.timestamp+'  [NORMAL]  '+d.domain+'  ('+d.confidence+'%)';
+  function initTimeline(){
+    const ctx=document.getElementById('timelineChart').getContext('2d');
+    tlChart=new Chart(ctx,{
+      type:'line',
+      data:{labels:tlLabels,datasets:[
+        {label:'Normal',data:tlNormal,borderColor:'#00ff88',backgroundColor:'rgba(0,255,136,0.06)',borderWidth:2,pointRadius:0,fill:true,tension:0.4},
+        {label:'Tunnel',data:tlTunnel,borderColor:'#ff3b5c',backgroundColor:'rgba(255,59,92,0.08)',borderWidth:2,pointRadius:0,fill:true,tension:0.4}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},
+        plugins:{legend:{display:true,labels:{color:'#94a3b8',font:{size:10,family:'JetBrains Mono'},boxWidth:10}}},
+        scales:{
+          x:{ticks:{color:'#4a6080',font:{size:9},maxTicksLimit:8},grid:{color:'#1e2d45'}},
+          y:{ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'},beginAtZero:true}
+        }
       }
-      log.insertBefore(row, log.firstChild);
-    }
+    });
+  }
 
-    function connect() {
-      document.getElementById('status').textContent='Connecting...';
-      const src = new EventSource('/stream');
-      src.onopen = ()=>{ document.getElementById('status').textContent='Connected — live monitoring active'; };
-      src.onmessage = (e)=>{
-        try {
-          const d=JSON.parse(e.data);
-          document.getElementById('status').textContent='Live — monitoring DNS queries in real time';
-          total++;
-          if(d.prediction===1){ tunnels++; showAlertBanner(d.domain,d.confidence); addToAlertsList(d.timestamp,d.domain,d.confidence); } else { normal++; }
-          updateStats(); addToLog(d);
-        } catch(err){ console.error('Parse error:',err); }
-      };
-      src.onerror = ()=>{ document.getElementById('status').textContent='Stream error — retrying in 2s...'; src.close(); setTimeout(connect,2000); };
-    }
+  setInterval(()=>{
+    const now=new Date();
+    const lbl=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    tlLabels.push(lbl);tlLabels.shift();
+    tlNormal.push(tickN);tlNormal.shift();
+    tlTunnel.push(tickT);tlTunnel.shift();
+    tickN=0;tickT=0;
+    if(tlChart)tlChart.update('none');
+  },2000);
 
-    function resetDemo() {
-      fetch('/reset',{method:'POST'}).then(()=>{
-        total=0;normal=0;tunnels=0;updateStats();
-        document.getElementById('log').innerHTML='';
-        document.getElementById('alerts-list').innerHTML='<div id="no-alerts">No tunnels detected yet.</div>';
-        document.getElementById('alert-banner').classList.remove('visible');
+  setInterval(()=>{document.getElementById('topbar-time').textContent=new Date().toLocaleTimeString();},1000);
+  document.getElementById('topbar-time').textContent=new Date().toLocaleTimeString();
+
+  function loadModelStats(){
+    fetch('/model-stats').then(r=>r.json()).then(s=>{
+      document.getElementById('m-acc').textContent=(s.accuracy*100).toFixed(2)+'%';
+      document.getElementById('m-roc').textContent=s.roc_auc.toFixed(4);
+      document.getElementById('m-samples').textContent=s.total_samples.toLocaleString();
+      document.getElementById('m-features').textContent=s.features_used.length;
+      const cm=s.confusion_matrix;
+      document.getElementById('cm-tn').textContent=cm[0][0].toLocaleString();
+      document.getElementById('cm-fp').textContent=cm[0][1].toLocaleString();
+      document.getElementById('cm-fn').textContent=cm[1][0].toLocaleString();
+      document.getElementById('cm-tp').textContent=cm[1][1].toLocaleString();
+      const sorted=Object.entries(s.feature_importances).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      new Chart(document.getElementById('featureChart').getContext('2d'),{
+        type:'bar',
+        data:{labels:sorted.map(x=>x[0].replace(/_/g,' ')),datasets:[{data:sorted.map(x=>(x[1]*100).toFixed(2)),backgroundColor:'rgba(0,212,255,0.15)',borderColor:'#00d4ff',borderWidth:1,borderRadius:3}]},
+        options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'}},y:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'#1e2d45'}}}}
       });
+    }).catch(e=>console.error(e));
+  }
+
+  function loadComparison(){
+    fetch('/comparison-stats').then(r=>r.json()).then(data=>{
+      const best=data.best_model;
+      const tbody=document.getElementById('cmp-body');
+      tbody.innerHTML='';
+      Object.entries(data.models).forEach(([name,m])=>{
+        const isBest=name===best;
+        const tr=document.createElement('tr');
+        if(isBest)tr.className='best-row';
+        tr.innerHTML=`<td>${name}${isBest?'<span class="best-badge">BEST</span>':''}</td><td>${(m.accuracy*100).toFixed(2)}%</td><td>${m.precision.toFixed(3)}</td><td>${m.recall.toFixed(3)}</td><td>${m.f1.toFixed(3)}</td><td>${m.roc_auc.toFixed(4)}</td>`;
+        tbody.appendChild(tr);
+      });
+      const colors={'Random Forest':'#00ff88','XGBoost':'#00d4ff','Logistic Regression':'#ffaa00'};
+      const datasets=Object.entries(data.roc_curves).map(([name,d])=>({label:`${name} (AUC=${d.auc})`,data:d.fpr.map((x,i)=>({x,y:d.tpr[i]})),borderColor:colors[name]||'#fff',borderWidth:2,pointRadius:0,fill:false,tension:0.3,showLine:true}));
+      datasets.push({label:'Chance',data:[{x:0,y:0},{x:1,y:1}],borderColor:'#1e2d45',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false,showLine:true});
+      new Chart(document.getElementById('rocChart').getContext('2d'),{
+        type:'scatter',data:{datasets},
+        options:{responsive:true,plugins:{legend:{display:true,labels:{color:'#94a3b8',font:{size:9,family:'JetBrains Mono'},boxWidth:10}}},
+          scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'False Positive Rate',color:'#4a6080',font:{size:9}},ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'}},
+          y:{type:'linear',min:0,max:1,title:{display:true,text:'True Positive Rate',color:'#4a6080',font:{size:9}},ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'}}}}
+      });
+    }).catch(e=>console.error(e));
+  }
+
+  function loadEvasion(){
+    fetch('/evasion-stats').then(r=>r.json()).then(data=>{
+      document.getElementById('evasion-summary').innerHTML=`Avg detection across all evasion attacks: <span style="color:var(--red);font-weight:600;">${data.average_detection}%</span> &nbsp;·&nbsp; Easiest: <span style="color:var(--green);">${data.easiest_attack}</span> &nbsp;·&nbsp; Hardest: <span style="color:var(--red);">${data.hardest_attack}</span>`;
+      const grid=document.getElementById('evasion-grid');
+      grid.innerHTML='';
+      const tc={LOW:'#00ff88',MEDIUM:'#ffaa00',HIGH:'#ff6b35',CRITICAL:'#ff3b5c'};
+      Object.entries(data.attacks).forEach(([name,a])=>{
+        const c=tc[a.threat_level]||'#fff';
+        const cell=document.createElement('div');
+        cell.className='ev-cell';
+        cell.style.borderTopColor=c;
+        cell.innerHTML=`<div class="ev-name">${name}</div><div class="ev-val" style="color:${c};">${a.detection_rate}%</div><div class="ev-sub">detected · ${a.missed} evaded</div><div class="ev-badge" style="background:${c}18;color:${c};border:1px solid ${c}33;">${a.threat_level}</div>`;
+        grid.appendChild(cell);
+      });
+    }).catch(e=>console.error(e));
+  }
+
+  function updateStats(){
+    document.getElementById('s-total').textContent=total;
+    document.getElementById('s-normal').textContent=normal;
+    document.getElementById('s-tunnel').textContent=tunnels;
+    document.getElementById('s-rate').textContent=(total>0?Math.round(tunnels/total*100):0)+'%';
+    document.getElementById('log-count').textContent=total+' queries';
+    document.getElementById('alert-count-badge').textContent=tunnels+' alerts';
+    document.getElementById('nav-alert-count').textContent=tunnels;
+  }
+
+  function showAlertBanner(domain,confidence){
+    const banner=document.getElementById('alert-banner');
+    document.getElementById('alert-text').textContent=domain+' — '+confidence+'% confidence';
+    banner.classList.add('visible');
+    clearTimeout(alertTimer);
+    alertTimer=setTimeout(()=>banner.classList.remove('visible'),5000);
+  }
+
+  function addToAlertsList(timestamp,domain,confidence){
+    const list=document.getElementById('alerts-list');
+    const noAlerts=document.getElementById('no-alerts');
+    if(noAlerts)noAlerts.remove();
+    const item=document.createElement('div');
+    item.className='alert-item';
+    item.innerHTML=`<div class="alert-domain">${domain}</div><div class="alert-meta">${timestamp} &nbsp;·&nbsp; conf: ${confidence}%</div>`;
+    list.insertBefore(item,list.firstChild);
+  }
+
+  function addToLog(d){
+    const log=document.getElementById('log');
+    const row=document.createElement('div');
+    if(d.prediction===1){
+      row.className='log-tunnel';
+      row.innerHTML=`<span>${d.timestamp} &nbsp;[TUNNEL]&nbsp; ${d.domain} &nbsp;(${d.confidence}%)</span>`;
+      tickT++;
+    } else {
+      row.className='log-normal';
+      row.textContent=`${d.timestamp}  [NORMAL]  ${d.domain}  (${d.confidence}%)`;
+      tickN++;
     }
+    log.insertBefore(row,log.firstChild);
+  }
 
-    function downloadAlerts(){ window.location.href='/download-alerts'; }
+  function connect(){
+    document.getElementById('topbar-status').textContent='● Connecting...';
+    document.getElementById('topbar-status').className='tb-badge tb-warn';
+    const src=new EventSource('/stream');
+    src.onopen=()=>{
+      document.getElementById('topbar-status').textContent='● Live';
+      document.getElementById('topbar-status').className='tb-badge tb-live';
+    };
+    src.onmessage=(e)=>{
+      try{
+        const d=JSON.parse(e.data);
+        total++;
+        if(d.prediction===1){tunnels++;showAlertBanner(d.domain,d.confidence);addToAlertsList(d.timestamp,d.domain,d.confidence);}else{normal++;}
+        updateStats();addToLog(d);
+      }catch(err){console.error(err);}
+    };
+    src.onerror=()=>{
+      document.getElementById('topbar-status').textContent='● Reconnecting...';
+      document.getElementById('topbar-status').className='tb-badge tb-warn';
+      src.close();setTimeout(connect,2000);
+    };
+  }
 
-    loadModelStats();
-    loadComparison();
-    loadEvasion();
-    connect();
-  </script>
+  function resetDemo(){
+    fetch('/reset',{method:'POST'}).then(()=>{
+      total=0;normal=0;tunnels=0;updateStats();
+      document.getElementById('log').innerHTML='';
+      document.getElementById('alerts-list').innerHTML='<div id="no-alerts">No tunnels detected yet.</div>';
+      document.getElementById('alert-banner').classList.remove('visible');
+      tlNormal.fill(0);tlTunnel.fill(0);
+      if(tlChart)tlChart.update();
+    });
+  }
+
+  function downloadAlerts(){window.location.href='/download-alerts';}
+
+  initTimeline();
+  loadModelStats();
+  loadComparison();
+  loadEvasion();
+  connect();
+</script>
 </body>
 </html>
