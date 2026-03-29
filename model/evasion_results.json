@@ -1,0 +1,216 @@
+{
+  "benign_accuracy": 100.0,
+  "average_detection": 24.1,
+  "hardest_attack": "Short Word Tunnel",
+  "easiest_attack": "Hex Encoded Tunnel",
+  "attacks": {
+    "Obvious Base64 Tunnel": {
+      "description": "Long random base64 subdomains \u2014 standard iodine/dnscat2 style",
+      "total": 200,
+      "detected": 125,
+      "missed": 75,
+      "detection_rate": 62.5,
+      "evasion_rate": 37.5,
+      "threat_level": "MEDIUM",
+      "examples": [
+        {
+          "domain": "NB8FofUp1I5yAKOv7cB1YD.data-exfil.com",
+          "detected": true,
+          "confidence": 52.9
+        },
+        {
+          "domain": "9HYgpF8KLj7JsyfI23MbL2RDwVImT.secret-transfer.net",
+          "detected": false,
+          "confidence": 42.1
+        },
+        {
+          "domain": "rLlqKzLF98sA/jWdGFbP1w8.evil-c2.net",
+          "detected": false,
+          "confidence": 38.9
+        }
+      ]
+    },
+    "Hex Encoded Tunnel": {
+      "description": "Hex-encoded payloads \u2014 still high entropy but different charset",
+      "total": 200,
+      "detected": 176,
+      "missed": 24,
+      "detection_rate": 88.0,
+      "evasion_rate": 12.0,
+      "threat_level": "MEDIUM",
+      "examples": [
+        {
+          "domain": "eadcb4d073a9f4bfa.c2server.net",
+          "detected": true,
+          "confidence": 54.3
+        },
+        {
+          "domain": "ef2f00f3cde15a4c610106.data-exfil.com",
+          "detected": true,
+          "confidence": 68.7
+        },
+        {
+          "domain": "3175a5e1aa48e6132.c2server.net",
+          "detected": true,
+          "confidence": 52.0
+        }
+      ]
+    },
+    "Short Word Tunnel": {
+      "description": "Single dictionary word \u2014 minimal entropy, hardest to detect",
+      "total": 200,
+      "detected": 0,
+      "missed": 200,
+      "detection_rate": 0.0,
+      "evasion_rate": 100.0,
+      "threat_level": "CRITICAL",
+      "examples": [
+        {
+          "domain": "home.data-exfil.com",
+          "detected": false,
+          "confidence": 11.4
+        },
+        {
+          "domain": "home.c2server.net",
+          "detected": false,
+          "confidence": 15.9
+        },
+        {
+          "domain": "help.c2server.net",
+          "detected": false,
+          "confidence": 15.4
+        }
+      ]
+    },
+    "Two Word Tunnel": {
+      "description": "Two dictionary words joined \u2014 mimics real subdomains",
+      "total": 200,
+      "detected": 0,
+      "missed": 200,
+      "detection_rate": 0.0,
+      "evasion_rate": 100.0,
+      "threat_level": "CRITICAL",
+      "examples": [
+        {
+          "domain": "file-api.c2server.net",
+          "detected": false,
+          "confidence": 32.3
+        },
+        {
+          "domain": "auth-shop.secret-transfer.net",
+          "detected": false,
+          "confidence": 26.9
+        },
+        {
+          "domain": "moon-img.c2server.net",
+          "detected": false,
+          "confidence": 29.4
+        }
+      ]
+    },
+    "Three Word Tunnel": {
+      "description": "Three-level subdomain with real words \u2014 very stealthy",
+      "total": 200,
+      "detected": 0,
+      "missed": 200,
+      "detection_rate": 0.0,
+      "evasion_rate": 100.0,
+      "threat_level": "CRITICAL",
+      "examples": [
+        {
+          "domain": "web.api.data.tunnel.bad.io",
+          "detected": false,
+          "confidence": 25.2
+        },
+        {
+          "domain": "help.login.img.data-exfil.com",
+          "detected": false,
+          "confidence": 23.4
+        },
+        {
+          "domain": "login.web.home.secret-transfer.net",
+          "detected": false,
+          "confidence": 25.9
+        }
+      ]
+    },
+    "Mimicry Tunnel": {
+      "description": "Mimics real service domain patterns (login.update.app.com)",
+      "total": 200,
+      "detected": 0,
+      "missed": 200,
+      "detection_rate": 0.0,
+      "evasion_rate": 100.0,
+      "threat_level": "CRITICAL",
+      "examples": [
+        {
+          "domain": "api.service.analytics-hub.co",
+          "detected": false,
+          "confidence": 30.6
+        },
+        {
+          "domain": "login.cloud.api-gateway.app",
+          "detected": false,
+          "confidence": 21.9
+        },
+        {
+          "domain": "mail.service.update-cdn.dev",
+          "detected": false,
+          "confidence": 22.6
+        }
+      ]
+    },
+    "Slow Drip Tunnel": {
+      "description": "Very short base64 chunks \u2014 slow exfiltration to avoid detection",
+      "total": 200,
+      "detected": 0,
+      "missed": 200,
+      "detection_rate": 0.0,
+      "evasion_rate": 100.0,
+      "threat_level": "CRITICAL",
+      "examples": [
+        {
+          "domain": "Ngpkko.secret-transfer.net",
+          "detected": false,
+          "confidence": 28.7
+        },
+        {
+          "domain": "oH0y.tunnel.bad.io",
+          "detected": false,
+          "confidence": 18.7
+        },
+        {
+          "domain": "PgTl.c2server.net",
+          "detected": false,
+          "confidence": 14.8
+        }
+      ]
+    },
+    "Numeric Tunnel": {
+      "description": "Decimal-encoded payloads \u2014 numeric subdomains",
+      "total": 200,
+      "detected": 85,
+      "missed": 115,
+      "detection_rate": 42.5,
+      "evasion_rate": 57.5,
+      "threat_level": "HIGH",
+      "examples": [
+        {
+          "domain": "922.573.184.data-exfil.com",
+          "detected": true,
+          "confidence": 54.3
+        },
+        {
+          "domain": "344.608.101.c2server.net",
+          "detected": false,
+          "confidence": 47.8
+        },
+        {
+          "domain": "294.725.197.secret-transfer.net",
+          "detected": true,
+          "confidence": 56.9
+        }
+      ]
+    }
+  }
+}

@@ -6,261 +6,93 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Courier New', monospace;
-      background: #0d1117;
-      color: #c9d1d9;
-      padding: 24px;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    body { font-family: 'Courier New', monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .header h1 { font-size: 22px; color: #ffffff; }
     .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .sim-badge {
-      font-size: 11px;
-      background: #f0a500;
-      color: #000;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
-    .v2-badge {
-      font-size: 11px;
-      background: #238636;
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
-    #status {
-      font-size: 12px;
-      color: #8b949e;
-      margin-bottom: 16px;
-    }
-
-    /* ── Live stats ── */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .stat {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 14px;
-      text-align: center;
-    }
+    .sim-badge { font-size: 11px; background: #f0a500; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+    .v3-badge  { font-size: 11px; background: #6e40c9; color: #fff; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+    #status { font-size: 12px; color: #8b949e; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 14px; text-align: center; }
     .stat-val { font-size: 28px; font-weight: bold; color: #ffffff; }
     .stat-val.danger { color: #ff4444; }
     .stat-val.safe   { color: #3fb950; }
-    .stat-val.info   { color: #58a6ff; }
     .stat-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-
-    /* ── Model stats bar ── */
-    .model-bar {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .mstat {
-      background: #0d2137;
-      border: 1px solid #1f4068;
-      border-radius: 10px;
-      padding: 14px;
-      text-align: center;
-    }
+    .model-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .mstat { background: #0d2137; border: 1px solid #1f4068; border-radius: 10px; padding: 14px; text-align: center; }
     .mstat-val { font-size: 22px; font-weight: bold; color: #58a6ff; }
     .mstat-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-
-    /* ── Alert banner ── */
-    #alert-banner {
-      display: none;
-      background: #3d0000;
-      border: 1px solid #ff4444;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      font-size: 13px;
-      color: #ff8888;
-    }
+    #alert-banner { display: none; background: #3d0000; border: 1px solid #ff4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #ff8888; }
     #alert-banner.visible { display: block; }
     .alert-title { font-weight: bold; font-size: 14px; color: #ff4444; margin-bottom: 4px; }
-
-    /* ── Main columns ── */
-    .columns {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 16px;
-      align-items: start;
-      margin-bottom: 16px;
-    }
-
-    .panel {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 14px;
-    }
-    .panel-title {
-      font-size: 12px;
-      color: #8b949e;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 10px;
-    }
-    #log {
-      height: 360px;
-      overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.7;
-    }
+    .columns { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; margin-bottom: 16px; }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 14px; }
+    .panel-title { font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+    #log { height: 360px; overflow-y: auto; font-size: 12px; line-height: 1.7; }
     .log-normal { color: #3fb950; }
-    .log-tunnel {
-      color: #ff4444;
-      font-weight: bold;
-      background: #1a0000;
-      padding: 1px 4px;
-      border-radius: 4px;
-    }
-
-    #alerts-list {
-      height: 360px;
-      overflow-y: auto;
-      font-size: 12px;
-    }
-    .alert-item {
-      border-bottom: 1px solid #21262d;
-      padding: 8px 0;
-      color: #ff8888;
-      line-height: 1.5;
-    }
-    .alert-item:first-child { padding-top: 0; }
+    .log-tunnel { color: #ff4444; font-weight: bold; background: #1a0000; padding: 1px 4px; border-radius: 4px; }
+    #alerts-list { height: 360px; overflow-y: auto; font-size: 12px; }
+    .alert-item { border-bottom: 1px solid #21262d; padding: 8px 0; color: #ff8888; line-height: 1.5; }
     .alert-domain { font-weight: bold; word-break: break-all; }
     .alert-meta { color: #6e7681; font-size: 11px; }
     #no-alerts { color: #8b949e; font-size: 12px; }
-
-    /* ── Bottom charts row ── */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    /* ── Confusion matrix ── */
-    .cm-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .cm-cell {
-      border-radius: 8px;
-      padding: 14px;
-      text-align: center;
-    }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .cm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .cm-cell { border-radius: 8px; padding: 14px; text-align: center; }
     .cm-cell .cm-val { font-size: 22px; font-weight: bold; }
     .cm-cell .cm-lbl { font-size: 11px; color: #8b949e; margin-top: 4px; }
-    .cm-tn { background: #0d2137; border: 1px solid #1f4068; }
-    .cm-tn .cm-val { color: #3fb950; }
-    .cm-fp { background: #1a1000; border: 1px solid #3d2800; }
-    .cm-fp .cm-val { color: #f0a500; }
-    .cm-fn { background: #1a0a00; border: 1px solid #3d1500; }
-    .cm-fn .cm-val { color: #ff6b35; }
-    .cm-tp { background: #0d2100; border: 1px solid #1a4200; }
-    .cm-tp .cm-val { color: #3fb950; }
-
-    /* ── Buttons ── */
+    .cm-tn { background: #0d2137; border: 1px solid #1f4068; } .cm-tn .cm-val { color: #3fb950; }
+    .cm-fp { background: #1a1000; border: 1px solid #3d2800; } .cm-fp .cm-val { color: #f0a500; }
+    .cm-fn { background: #1a0a00; border: 1px solid #3d1500; } .cm-fn .cm-val { color: #ff6b35; }
+    .cm-tp { background: #0d2100; border: 1px solid #1a4200; } .cm-tp .cm-val { color: #3fb950; }
+    .v3-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .cmp-table th { color: #8b949e; text-align: left; padding: 6px 8px; border-bottom: 1px solid #30363d; font-weight: normal; font-size: 11px; text-transform: uppercase; }
+    .cmp-table td { padding: 8px 8px; border-bottom: 1px solid #21262d; color: #c9d1d9; }
+    .cmp-table tr.best-row td { color: #3fb950; }
+    .best-badge { font-size: 10px; background: #0d2100; color: #3fb950; border: 1px solid #1a4200; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
     .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn {
-      background: transparent;
-      border: 1px solid #30363d;
-      color: #8b949e;
-      padding: 6px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: monospace;
-      font-size: 12px;
-    }
+    .btn { background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 12px; }
     .btn:hover { border-color: #8b949e; color: #c9d1d9; }
     .btn.green { border-color: #238636; color: #3fb950; }
     .btn.green:hover { background: #0d2100; }
-
     @media (max-width: 700px) {
       .stats, .model-bar { grid-template-columns: repeat(2, 1fr); }
-      .columns, .charts-row { grid-template-columns: 1fr; }
+      .columns, .charts-row, .v3-row { grid-template-columns: 1fr; }
+      #evasion-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
   </style>
 </head>
 <body>
-
   <div class="header">
     <h1>🔍 DNS Tunnel Detector</h1>
     <div class="badges">
-      <span class="v2-badge">V2 — REAL DATA</span>
+      <span class="v3-badge">V3 — MODEL COMPARISON</span>
       <span class="sim-badge">SIMULATION MODE</span>
     </div>
   </div>
   <div id="status">Connecting to stream...</div>
 
-  <!-- Live query stats -->
   <div class="stats">
-    <div class="stat">
-      <div class="stat-val" id="s-total">0</div>
-      <div class="stat-lbl">Queries analyzed</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val safe" id="s-normal">0</div>
-      <div class="stat-lbl">Normal</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val danger" id="s-tunnel">0</div>
-      <div class="stat-lbl">Tunnels detected</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val danger" id="s-rate">0%</div>
-      <div class="stat-lbl">Detection rate</div>
-    </div>
+    <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Queries analyzed</div></div>
+    <div class="stat"><div class="stat-val safe" id="s-normal">0</div><div class="stat-lbl">Normal</div></div>
+    <div class="stat"><div class="stat-val danger" id="s-tunnel">0</div><div class="stat-lbl">Tunnels detected</div></div>
+    <div class="stat"><div class="stat-val danger" id="s-rate">0%</div><div class="stat-lbl">Detection rate</div></div>
   </div>
 
-  <!-- Model stats bar -->
   <div class="model-bar">
-    <div class="mstat">
-      <div class="mstat-val" id="m-acc">—</div>
-      <div class="mstat-lbl">Model Accuracy</div>
-    </div>
-    <div class="mstat">
-      <div class="mstat-val" id="m-roc">—</div>
-      <div class="mstat-lbl">ROC-AUC Score</div>
-    </div>
-    <div class="mstat">
-      <div class="mstat-val" id="m-samples">—</div>
-      <div class="mstat-lbl">Training Samples</div>
-    </div>
-    <div class="mstat">
-      <div class="mstat-val" id="m-features">—</div>
-      <div class="mstat-lbl">Features Used</div>
-    </div>
+    <div class="mstat"><div class="mstat-val" id="m-acc">—</div><div class="mstat-lbl">Model Accuracy</div></div>
+    <div class="mstat"><div class="mstat-val" id="m-roc">—</div><div class="mstat-lbl">ROC-AUC Score</div></div>
+    <div class="mstat"><div class="mstat-val" id="m-samples">—</div><div class="mstat-lbl">Training Samples</div></div>
+    <div class="mstat"><div class="mstat-val" id="m-features">—</div><div class="mstat-lbl">Features Used</div></div>
   </div>
 
-  <!-- Alert banner -->
   <div id="alert-banner">
     <div class="alert-title">⚠ TUNNEL DETECTED</div>
     <div id="alert-text"></div>
   </div>
 
-  <!-- Live log + alerts -->
   <div class="columns">
     <div class="panel">
       <div class="panel-title">Live query log</div>
@@ -268,138 +100,146 @@
     </div>
     <div class="panel">
       <div class="panel-title">Alerts history</div>
-      <div id="alerts-list">
-        <div id="no-alerts">No tunnels detected yet.</div>
-      </div>
+      <div id="alerts-list"><div id="no-alerts">No tunnels detected yet.</div></div>
     </div>
   </div>
 
-  <!-- Charts row -->
   <div class="charts-row">
-
-    <!-- Feature importance chart -->
     <div class="panel">
       <div class="panel-title">Feature importance</div>
       <canvas id="featureChart" height="220"></canvas>
     </div>
-
-    <!-- Confusion matrix -->
     <div class="panel">
       <div class="panel-title">Confusion matrix (test set)</div>
       <div class="cm-grid">
-        <div class="cm-cell cm-tn">
-          <div class="cm-val" id="cm-tn">—</div>
-          <div class="cm-lbl">True Negative<br>Correctly benign</div>
-        </div>
-        <div class="cm-cell cm-fp">
-          <div class="cm-val" id="cm-fp">—</div>
-          <div class="cm-lbl">False Positive<br>Wrongly flagged</div>
-        </div>
-        <div class="cm-cell cm-fn">
-          <div class="cm-val" id="cm-fn">—</div>
-          <div class="cm-lbl">False Negative<br>Missed attacks</div>
-        </div>
-        <div class="cm-cell cm-tp">
-          <div class="cm-val" id="cm-tp">—</div>
-          <div class="cm-lbl">True Positive<br>Correctly caught</div>
-        </div>
+        <div class="cm-cell cm-tn"><div class="cm-val" id="cm-tn">—</div><div class="cm-lbl">True Negative<br>Correctly benign</div></div>
+        <div class="cm-cell cm-fp"><div class="cm-val" id="cm-fp">—</div><div class="cm-lbl">False Positive<br>Wrongly flagged</div></div>
+        <div class="cm-cell cm-fn"><div class="cm-val" id="cm-fn">—</div><div class="cm-lbl">False Negative<br>Missed attacks</div></div>
+        <div class="cm-cell cm-tp"><div class="cm-val" id="cm-tp">—</div><div class="cm-lbl">True Positive<br>Correctly caught</div></div>
       </div>
     </div>
-
   </div>
 
-  <!-- Buttons -->
+  <div class="v3-row">
+    <div class="panel">
+      <div class="panel-title">ROC curve — all 3 models</div>
+      <canvas id="rocChart" height="220"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Model comparison</div>
+      <table class="cmp-table">
+        <thead>
+          <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th></tr>
+        </thead>
+        <tbody id="cmp-body">
+          <tr><td colspan="6" style="color:#8b949e;padding:8px;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- V3: Evasion results -->
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-title">Evasion attack testing — where the model struggles</div>
+    <div id="evasion-summary" style="font-size:12px;color:#8b949e;margin-bottom:12px;"></div>
+    <div id="evasion-grid" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;"></div>
+  </div>
+
   <div class="btn-row">
     <button class="btn" onclick="resetDemo()">Reset demo</button>
     <button class="btn green" onclick="downloadAlerts()">⬇ Download alerts CSV</button>
   </div>
 
   <script>
-    let total = 0, normal = 0, tunnels = 0;
-    let alertTimer = null;
-    let featureChart = null;
+    let total=0, normal=0, tunnels=0, alertTimer=null;
 
-    // ── Load model stats on page load ──
     function loadModelStats() {
-      fetch('/model-stats')
-        .then(r => r.json())
-        .then(stats => {
-          document.getElementById('m-acc').textContent =
-            (stats.accuracy * 100).toFixed(2) + '%';
-          document.getElementById('m-roc').textContent =
-            stats.roc_auc.toFixed(4);
-          document.getElementById('m-samples').textContent =
-            stats.total_samples.toLocaleString();
-          document.getElementById('m-features').textContent =
-            stats.features_used.length;
-
-          // Confusion matrix
-          const cm = stats.confusion_matrix;
-          document.getElementById('cm-tn').textContent = cm[0][0].toLocaleString();
-          document.getElementById('cm-fp').textContent = cm[0][1].toLocaleString();
-          document.getElementById('cm-fn').textContent = cm[1][0].toLocaleString();
-          document.getElementById('cm-tp').textContent = cm[1][1].toLocaleString();
-
-          // Feature importance chart
-          const fi = stats.feature_importances;
-          const sorted = Object.entries(fi)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
-          const labels = sorted.map(x => x[0].replace(/_/g, ' '));
-          const values = sorted.map(x => (x[1] * 100).toFixed(2));
-
-          const ctx = document.getElementById('featureChart').getContext('2d');
-          featureChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: [{
-                label: 'Importance %',
-                data: values,
-                backgroundColor: '#1f4068',
-                borderColor: '#58a6ff',
-                borderWidth: 1,
-                borderRadius: 4,
-              }]
-            },
-            options: {
-              indexAxis: 'y',
-              responsive: true,
-              plugins: {
-                legend: { display: false },
-              },
-              scales: {
-                x: {
-                  ticks: { color: '#8b949e', font: { size: 10 } },
-                  grid: { color: '#21262d' }
-                },
-                y: {
-                  ticks: { color: '#c9d1d9', font: { size: 10 } },
-                  grid: { color: '#21262d' }
-                }
-              }
-            }
-          });
-        })
-        .catch(e => console.error('Stats load error:', e));
+      fetch('/model-stats').then(r=>r.json()).then(stats => {
+        document.getElementById('m-acc').textContent = (stats.accuracy*100).toFixed(2)+'%';
+        document.getElementById('m-roc').textContent = stats.roc_auc.toFixed(4);
+        document.getElementById('m-samples').textContent = stats.total_samples.toLocaleString();
+        document.getElementById('m-features').textContent = stats.features_used.length;
+        const cm = stats.confusion_matrix;
+        document.getElementById('cm-tn').textContent = cm[0][0].toLocaleString();
+        document.getElementById('cm-fp').textContent = cm[0][1].toLocaleString();
+        document.getElementById('cm-fn').textContent = cm[1][0].toLocaleString();
+        document.getElementById('cm-tp').textContent = cm[1][1].toLocaleString();
+        const fi = stats.feature_importances;
+        const sorted = Object.entries(fi).sort((a,b)=>b[1]-a[1]).slice(0,10);
+        new Chart(document.getElementById('featureChart').getContext('2d'), {
+          type:'bar',
+          data:{ labels:sorted.map(x=>x[0].replace(/_/g,' ')), datasets:[{ data:sorted.map(x=>(x[1]*100).toFixed(2)), backgroundColor:'#1f4068', borderColor:'#58a6ff', borderWidth:1, borderRadius:4 }] },
+          options:{ indexAxis:'y', responsive:true, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}}, y:{ticks:{color:'#c9d1d9',font:{size:10}},grid:{color:'#21262d'}} } }
+        });
+      }).catch(e=>console.error('Stats error:',e));
     }
 
-    // ── Live stats ──
+    function loadComparison() {
+      fetch('/comparison-stats').then(r=>r.json()).then(data => {
+        const best = data.best_model;
+        const tbody = document.getElementById('cmp-body');
+        tbody.innerHTML = '';
+        Object.entries(data.models).forEach(([name, m]) => {
+          const isBest = name === best;
+          const tr = document.createElement('tr');
+          if (isBest) tr.className = 'best-row';
+          tr.innerHTML = `<td>${name}${isBest?'<span class="best-badge">BEST</span>':''}</td><td>${(m.accuracy*100).toFixed(2)}%</td><td>${m.precision.toFixed(3)}</td><td>${m.recall.toFixed(3)}</td><td>${m.f1.toFixed(3)}</td><td>${m.roc_auc.toFixed(4)}</td>`;
+          tbody.appendChild(tr);
+        });
+        const colors = { 'Random Forest':{line:'#3fb950'}, 'XGBoost':{line:'#58a6ff'}, 'Logistic Regression':{line:'#f0a500'} };
+        const datasets = Object.entries(data.roc_curves).map(([name,d])=>({
+          label:`${name} (AUC=${d.auc})`,
+          data: d.fpr.map((x,i)=>({x,y:d.tpr[i]})),
+          borderColor: colors[name]?.line||'#fff',
+          borderWidth:2, pointRadius:0, fill:false, tension:0.3, showLine:true
+        }));
+        datasets.push({ label:'Random chance', data:[{x:0,y:0},{x:1,y:1}], borderColor:'#30363d', borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false, showLine:true });
+        new Chart(document.getElementById('rocChart').getContext('2d'), {
+          type:'scatter', data:{ datasets },
+          options:{ responsive:true, plugins:{ legend:{ display:true, labels:{ color:'#8b949e', font:{size:10}, boxWidth:12 } } },
+            scales:{ x:{ type:'linear', min:0, max:1, title:{display:true,text:'False Positive Rate',color:'#8b949e',font:{size:10}}, ticks:{color:'#8b949e',font:{size:10}}, grid:{color:'#21262d'} },
+              y:{ type:'linear', min:0, max:1, title:{display:true,text:'True Positive Rate',color:'#8b949e',font:{size:10}}, ticks:{color:'#8b949e',font:{size:10}}, grid:{color:'#21262d'} } } }
+        });
+      }).catch(e=>console.error('Comparison error:',e));
+    }
+
+    function loadEvasion() {
+      fetch('/evasion-stats').then(r=>r.json()).then(data => {
+        document.getElementById('evasion-summary').innerHTML =
+          `Avg detection across all evasion attacks: <span style="color:#ff4444;font-weight:bold;">${data.average_detection}%</span>
+          &nbsp;|&nbsp; Easiest: <span style="color:#3fb950;">${data.easiest_attack}</span>
+          &nbsp;|&nbsp; Hardest: <span style="color:#ff4444;">${data.hardest_attack}</span>`;
+        const grid = document.getElementById('evasion-grid');
+        grid.innerHTML = '';
+        const threatColors = {LOW:'#3fb950',MEDIUM:'#f0a500',HIGH:'#ff6b35',CRITICAL:'#ff4444'};
+        Object.entries(data.attacks).forEach(([name, a]) => {
+          const color = threatColors[a.threat_level] || '#fff';
+          const cell = document.createElement('div');
+          cell.style.cssText = 'background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px;';
+          cell.innerHTML = `
+            <div style="font-size:10px;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">${name}</div>
+            <div style="font-size:22px;font-weight:bold;color:${color};">${a.detection_rate}%</div>
+            <div style="font-size:11px;color:#8b949e;margin-top:4px;">detected</div>
+            <div style="font-size:10px;margin-top:6px;padding:2px 6px;border-radius:10px;display:inline-block;background:${color}22;color:${color};border:1px solid ${color}44;">${a.threat_level}</div>
+          `;
+          grid.appendChild(cell);
+        });
+      }).catch(e=>console.error('Evasion error:',e));
+    }
+
     function updateStats() {
-      document.getElementById('s-total').textContent  = total;
+      document.getElementById('s-total').textContent = total;
       document.getElementById('s-normal').textContent = normal;
       document.getElementById('s-tunnel').textContent = tunnels;
-      const rate = total > 0 ? Math.round(tunnels / total * 100) : 0;
-      document.getElementById('s-rate').textContent   = rate + '%';
+      document.getElementById('s-rate').textContent = (total>0?Math.round(tunnels/total*100):0)+'%';
     }
 
     function showAlertBanner(domain, confidence) {
       const banner = document.getElementById('alert-banner');
-      document.getElementById('alert-text').textContent =
-        domain + ' — confidence: ' + confidence + '%';
+      document.getElementById('alert-text').textContent = domain+' — confidence: '+confidence+'%';
       banner.classList.add('visible');
       clearTimeout(alertTimer);
-      alertTimer = setTimeout(() => banner.classList.remove('visible'), 4000);
+      alertTimer = setTimeout(()=>banner.classList.remove('visible'), 4000);
     }
 
     function addToAlertsList(timestamp, domain, confidence) {
@@ -408,80 +248,53 @@
       if (noAlerts) noAlerts.remove();
       const item = document.createElement('div');
       item.className = 'alert-item';
-      item.innerHTML =
-        '<div class="alert-domain">' + domain + '</div>' +
-        '<div class="alert-meta">' + timestamp +
-        ' &nbsp;|&nbsp; conf: ' + confidence + '%</div>';
+      item.innerHTML = '<div class="alert-domain">'+domain+'</div><div class="alert-meta">'+timestamp+' &nbsp;|&nbsp; conf: '+confidence+'%</div>';
       list.insertBefore(item, list.firstChild);
     }
 
     function addToLog(d) {
       const log = document.getElementById('log');
       const row = document.createElement('div');
-      if (d.prediction === 1) {
-        row.className = 'log-tunnel';
-        row.textContent =
-          d.timestamp + '  [TUNNEL]  ' + d.domain + '  (' + d.confidence + '%)';
+      if (d.prediction===1) {
+        row.className='log-tunnel';
+        row.textContent=d.timestamp+'  [TUNNEL]  '+d.domain+'  ('+d.confidence+'%)';
       } else {
-        row.className = 'log-normal';
-        row.textContent =
-          d.timestamp + '  [NORMAL]  ' + d.domain + '  (' + d.confidence + '%)';
+        row.className='log-normal';
+        row.textContent=d.timestamp+'  [NORMAL]  '+d.domain+'  ('+d.confidence+'%)';
       }
       log.insertBefore(row, log.firstChild);
     }
 
-    // ── SSE stream ──
     function connect() {
-      document.getElementById('status').textContent = 'Connecting...';
+      document.getElementById('status').textContent='Connecting...';
       const src = new EventSource('/stream');
-      src.onopen = function() {
-        document.getElementById('status').textContent =
-          'Connected — live monitoring active';
-      };
-      src.onmessage = function(e) {
+      src.onopen = ()=>{ document.getElementById('status').textContent='Connected — live monitoring active'; };
+      src.onmessage = (e)=>{
         try {
-          const d = JSON.parse(e.data);
-          document.getElementById('status').textContent =
-            'Live — monitoring DNS queries in real time';
+          const d=JSON.parse(e.data);
+          document.getElementById('status').textContent='Live — monitoring DNS queries in real time';
           total++;
-          if (d.prediction === 1) {
-            tunnels++;
-            showAlertBanner(d.domain, d.confidence);
-            addToAlertsList(d.timestamp, d.domain, d.confidence);
-          } else {
-            normal++;
-          }
-          updateStats();
-          addToLog(d);
-        } catch(err) {
-          console.error('Parse error:', err);
-        }
+          if(d.prediction===1){ tunnels++; showAlertBanner(d.domain,d.confidence); addToAlertsList(d.timestamp,d.domain,d.confidence); } else { normal++; }
+          updateStats(); addToLog(d);
+        } catch(err){ console.error('Parse error:',err); }
       };
-      src.onerror = function() {
-        document.getElementById('status').textContent =
-          'Stream error — retrying in 2s...';
-        src.close();
-        setTimeout(connect, 2000);
-      };
+      src.onerror = ()=>{ document.getElementById('status').textContent='Stream error — retrying in 2s...'; src.close(); setTimeout(connect,2000); };
     }
 
     function resetDemo() {
-      fetch('/reset', { method: 'POST' }).then(() => {
-        total = 0; normal = 0; tunnels = 0;
-        updateStats();
-        document.getElementById('log').innerHTML = '';
-        document.getElementById('alerts-list').innerHTML =
-          '<div id="no-alerts">No tunnels detected yet.</div>';
+      fetch('/reset',{method:'POST'}).then(()=>{
+        total=0;normal=0;tunnels=0;updateStats();
+        document.getElementById('log').innerHTML='';
+        document.getElementById('alerts-list').innerHTML='<div id="no-alerts">No tunnels detected yet.</div>';
         document.getElementById('alert-banner').classList.remove('visible');
       });
     }
 
-    function downloadAlerts() {
-      window.location.href = '/download-alerts';
-    }
+    function downloadAlerts(){ window.location.href='/download-alerts'; }
 
-    // Init
     loadModelStats();
+    loadComparison();
+    loadEvasion();
     connect();
   </script>
 </body>

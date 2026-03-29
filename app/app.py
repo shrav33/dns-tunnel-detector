@@ -11,12 +11,13 @@ from features import extract_features
 
 app = Flask(__name__)
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'dns_rf_model.pkl')
-LOG_PATH   = os.path.join(os.path.dirname(__file__), '..', 'shared', 'dns_log.txt')
-STATS_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'model_stats.json')
+MODEL_PATH      = os.path.join(os.path.dirname(__file__), '..', 'model', 'dns_rf_model.pkl')
+LOG_PATH        = os.path.join(os.path.dirname(__file__), '..', 'shared', 'dns_log.txt')
+STATS_PATH      = os.path.join(os.path.dirname(__file__), '..', 'model', 'model_stats.json')
+COMPARISON_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'comparison_results.json')
 
 model = joblib.load(MODEL_PATH)
-print("V2 Model loaded successfully.")
+print("V3 Model loaded successfully.")
 
 alert_store = []
 
@@ -82,6 +83,15 @@ def model_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/comparison-stats')
+def comparison_stats():
+    try:
+        with open(COMPARISON_PATH, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/download-alerts')
 def download_alerts():
     output = io.StringIO()
@@ -94,6 +104,16 @@ def download_alerts():
         mimetype='text/csv',
         headers={'Content-Disposition': 'attachment; filename=dns_alerts.csv'}
     )
+
+@app.route('/evasion-stats')
+def evasion_stats():
+    try:
+        EVASION_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'evasion_results.json')
+        with open(EVASION_PATH, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=False, threaded=True)
