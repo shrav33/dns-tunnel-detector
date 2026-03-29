@@ -1,0 +1,62 @@
+{
+  "accuracy": 0.9543,
+  "roc_auc": 0.9607,
+  "confusion_matrix": [
+    [
+      705185,
+      20702
+    ],
+    [
+      17225,
+      87641
+    ]
+  ],
+  "feature_importances": {
+    "dns_domain_name_length": 0.1805172126904087,
+    "character_entropy": 0.16953413447373566,
+    "ttl_values_max": 0.08336141563721788,
+    "ttl_values_mean": 0.08117594317400649,
+    "ttl_values_min": 0.07049260847959088,
+    "conv_freq_vowels_consonants": 0.06744775424902281,
+    "max_continuous_numeric_len": 0.0634978340906504,
+    "numerical_percentage": 0.06307426343671868,
+    "max_continuous_alphabet_len": 0.0410074900730731,
+    "distinct_A_records": 0.03674971985659882,
+    "vowels_consonant_ratio": 0.027186782018068865,
+    "average_authority_resource_records": 0.02675887907810989,
+    "max_continuous_same_alphabet_len": 0.02117488132780386,
+    "ttl_values_variance": 0.01408871193908511,
+    "ttl_values_skewness": 0.012521846479615491,
+    "distinct_ttl_values": 0.012395525530608879,
+    "max_continuous_consonants_len": 0.01210483780218414,
+    "ttl_values_standard_deviation": 0.010532721642671924,
+    "dns_subdomain_name_length": 0.006223875232392792,
+    "average_answer_resource_records": 0.0001535627884356385
+  },
+  "classification_report": "              precision    recall  f1-score   support\n\n      Benign       0.98      0.97      0.97    725887\n      Tunnel       0.81      0.84      0.82    104866\n\n    accuracy                           0.95    830753\n   macro avg       0.89      0.90      0.90    830753\nweighted avg       0.96      0.95      0.95    830753\n",
+  "total_samples": 4153762,
+  "tunnel_samples": 524328,
+  "benign_samples": 3629434,
+  "features_used": [
+    "dns_domain_name_length",
+    "dns_subdomain_name_length",
+    "numerical_percentage",
+    "character_entropy",
+    "max_continuous_numeric_len",
+    "max_continuous_alphabet_len",
+    "max_continuous_consonants_len",
+    "max_continuous_same_alphabet_len",
+    "vowels_consonant_ratio",
+    "conv_freq_vowels_consonants",
+    "distinct_ttl_values",
+    "ttl_values_min",
+    "ttl_values_max",
+    "ttl_values_mean",
+    "ttl_values_variance",
+    "ttl_values_standard_deviation",
+    "ttl_values_skewness",
+    "distinct_A_records",
+    "average_answer_resource_records",
+    "average_authority_resource_records"
+  ]
+}
