@@ -15,9 +15,32 @@ MODEL_PATH      = os.path.join(os.path.dirname(__file__), '..', 'model', 'dns_rf
 LOG_PATH        = os.path.join(os.path.dirname(__file__), '..', 'shared', 'dns_log.txt')
 STATS_PATH      = os.path.join(os.path.dirname(__file__), '..', 'model', 'model_stats.json')
 COMPARISON_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'comparison_results.json')
+EVASION_PATH    = os.path.join(os.path.dirname(__file__), '..', 'model', 'evasion_results.json')
+WHITELIST_PATH  = os.path.join(os.path.dirname(__file__), '..', 'whitelist.json')
 
 model = joblib.load(MODEL_PATH)
 print("V3 Model loaded successfully.")
+
+# ── Load whitelist ──
+def load_whitelist():
+    try:
+        with open(WHITELIST_PATH, 'r') as f:
+            data = json.load(f)
+        domains = set(data.get('domains', []))
+        print(f"Whitelist loaded: {len(domains)} trusted domains")
+        return domains
+    except Exception as e:
+        print(f"Whitelist not found: {e}")
+        return set()
+
+WHITELIST = load_whitelist()
+
+def is_whitelisted(domain):
+    domain = domain.strip().lower().rstrip('.')
+    for trusted in WHITELIST:
+        if domain == trusted or domain.endswith('.' + trusted):
+            return True
+    return False
 
 alert_store = []
 
@@ -38,7 +61,22 @@ def generate_events():
             parts = line.split(',', 1)
             if len(parts) != 2:
                 continue
-            timestamp, domain = parts[0], parts[1]
+            timestamp, domain = parts[0], parts[1].strip()
+
+            # ── Whitelist check ──
+            if is_whitelisted(domain):
+                event = {
+                    'timestamp': timestamp,
+                    'domain': domain,
+                    'prediction': -1,
+                    'label': 'WHITELISTED',
+                    'confidence': 100.0
+                }
+                yield f"data: {json.dumps(event)}\n\n"
+                lines_seen += 1
+                continue
+
+            # ── ML classification ──
             try:
                 features = extract_features(domain)
                 prediction = int(model.predict([features])[0])
@@ -92,6 +130,22 @@ def comparison_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/evasion-stats')
+def evasion_stats():
+    try:
+        with open(EVASION_PATH, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/whitelist')
+def get_whitelist():
+    return jsonify({
+        'count': len(WHITELIST),
+        'domains': sorted(list(WHITELIST))
+    })
+
 @app.route('/download-alerts')
 def download_alerts():
     output = io.StringIO()
@@ -104,16 +158,6 @@ def download_alerts():
         mimetype='text/csv',
         headers={'Content-Disposition': 'attachment; filename=dns_alerts.csv'}
     )
-
-@app.route('/evasion-stats')
-def evasion_stats():
-    try:
-        EVASION_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'evasion_results.json')
-        with open(EVASION_PATH, 'r') as f:
-            data = json.load(f)
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=False, threaded=True)

@@ -1,0 +1,15 @@
+{
+  "comment": "Known-good domains that bypass ML classification entirely.",
+  "domains": [
+    "google.com", "googleapis.com", "googleusercontent.com", "gstatic.com",
+    "youtube.com", "microsoft.com", "microsoftonline.com", "live.com",
+    "outlook.com", "office.com", "office365.com", "teams.microsoft.com",
+    "cloudflare.com", "cloudflareinsights.com", "cloudflarestorage.com",
+    "amazon.com", "amazonaws.com", "github.com", "githubusercontent.com",
+    "stackoverflow.com", "wikipedia.org", "apple.com", "icloud.com",
+    "akamai.com", "fastly.net", "npmjs.org", "npmjs.com",
+    "python.org", "pypi.org", "ubuntu.com", "mozilla.org",
+    "twitter.com", "facebook.com", "instagram.com", "linkedin.com",
+    "reddit.com", "discord.com", "slack.com", "zoom.us"
+  ]
+}

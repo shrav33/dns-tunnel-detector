@@ -1,8 +1,3 @@
-"""
-V3 — Model Comparison: Random Forest vs XGBoost vs Logistic Regression
-Save as: model/compare_models.py
-Run from project root: python model/compare_models.py
-"""
 
 import os
 import glob
@@ -198,9 +193,9 @@ for name, clf in models.items():
         best_score = roc
         best_model_name = name
 
-# ─────────────────────────────────────────────
+
 # STEP 5 — SAVE RESULTS
-# ─────────────────────────────────────────────
+
 print(f"\n[4/5] Best model: {best_model_name} (ROC-AUC: {best_score:.4f})")
 
 # Copy best model as active model
