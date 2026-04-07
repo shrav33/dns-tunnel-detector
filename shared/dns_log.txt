@@ -1,78 +1,248 @@
-00:53:23,storage.azure.com
-00:53:24,login.microsoft.com
-00:53:24,XlvIjs9DcGBzCDA7.exfil.hidden.io
-00:53:25,update.googleapis.com
-00:53:25,www.stackoverflow.com
-00:53:26,smtp.gmail.com
-00:53:26,TmQIPSMvWrdVdHez.tunnel.bad.io
-00:53:27,cdn.cloudflare.com
-00:53:28,SxyOjNo2xXs2g8x5.evil-c2.net
-00:53:28,9gv6qBGAZRiw3gIq.tunnel.bad.io
-00:53:29,pypi.org
-00:53:29,update.googleapis.com
-00:53:30,3GK7eJaOzZwczxBi.data-exfil.xyz
-00:53:30,teams.microsoft.com
-00:53:31,api.github.com
-00:53:31,accounts.google.com
-00:53:32,www.stackoverflow.com
-00:53:32,update.googleapis.com
-00:53:33,8xmIWMFldw1RSDyN.tunnel.bad.io
-00:53:33,fonts.googleapis.com
-00:53:34,banR321HUmVuJcQz.data-exfil.xyz
-00:53:34,imap.gmail.com
-00:53:35,mail.google.com
-00:53:35,vmhG7OhajYIPjzus.c2server.ru
-00:53:36,www.wikipedia.org
-00:53:36,fonts.googleapis.com
-00:53:37,pypi.org
-00:53:37,teams.microsoft.com
-00:53:38,fonts.googleapis.com
-00:53:38,uxzRJhXKwv2wtYiD.exfil.hidden.io
-00:53:39,oCyO8OE2ijEe2eBg.evil-c2.net
-00:53:39,static.cloudflareinsights.com
-00:53:40,KsnywswABpvLx19z.evil-c2.net
-00:53:40,static.cloudflareinsights.com
-00:53:41,dhIL3KniBDgsmzuw.exfil.hidden.io
-00:53:41,outlook.live.com
-00:53:42,taajWocxa0JRbldT.evil-c2.net
-00:53:42,fonts.googleapis.com
-00:53:43,static.cloudflareinsights.com
-00:53:43,cdn.cloudflare.com
-00:53:44,registry.npmjs.org
-00:53:44,N1yRIoC2oZ7akEUo.tunnel.bad.io
-00:53:45,4LfBwlfpkW6u5G3K.evil-c2.net
-00:53:45,outlook.live.com
-00:53:46,accounts.google.com
-00:53:46,storage.azure.com
-00:53:47,RQfK9cCa8n0NDHM9.tunnel.bad.io
-00:53:47,smtp.gmail.com
-00:53:48,storage.azure.com
-00:53:48,www.wikipedia.org
-00:53:49,fonts.googleapis.com
-00:53:49,r6AlA8K24YzbHcWa.evil-c2.net
-00:53:50,storage.azure.com
-00:53:50,www.google.com
-00:53:51,qLI3n8iC4MpDLtzj.tunnel.bad.io
-00:53:51,outlook.live.com
-00:53:52,mail.google.com
-00:53:52,static.cloudflareinsights.com
-00:53:53,www.stackoverflow.com
-00:53:53,pypi.org
-00:53:54,teams.microsoft.com
-00:53:54,gjuzSoI0NdVEDyUX.c2server.ru
-00:53:55,cdn.cloudflare.com
-00:53:55,api.github.com
-00:53:56,outlook.live.com
-00:53:56,www.stackoverflow.com
-00:53:57,api.github.com
-00:53:57,www.youtube.com
-00:53:58,imap.gmail.com
-00:53:58,static.cloudflareinsights.com
-00:53:59,static.cloudflareinsights.com
-00:53:59,pypi.org
-00:54:00,teams.microsoft.com
-00:54:00,accounts.google.com
-00:54:01,pypi.org
-00:54:01,www.wikipedia.org
-00:54:02,GQvEXRKeRzz7a0gz.c2server.ru
-00:54:02,storage.azure.com
+01:21:28,www.youtube.com
+01:21:28,u2VfCOAg7VwgnVYC.tunnel.bad.io
+01:21:29,static.cloudflareinsights.com
+01:21:29,outlook.live.com
+01:21:30,api.github.com
+01:21:30,login.microsoft.com
+01:21:31,www.wikipedia.org
+01:21:31,static.cloudflareinsights.com
+01:21:32,www.stackoverflow.com
+01:21:32,teams.microsoft.com
+01:21:33,Y6oTzvwes4nhWEEa.secret-transfer.net
+01:21:34,www.stackoverflow.com
+01:21:34,www.wikipedia.org
+01:21:35,static.cloudflareinsights.com
+01:21:35,update.googleapis.com
+01:21:36,www.wikipedia.org
+01:21:36,www.youtube.com
+01:21:37,storage.azure.com
+01:21:37,accounts.google.com
+01:21:38,accounts.google.com
+01:21:38,www.stackoverflow.com
+01:21:39,login.microsoft.com
+01:21:39,LiQ2xOwArrQPZjn3.data-exfil.xyz
+01:21:40,if8G8bdALxbMHUEb.data-exfil.xyz
+01:21:40,fR04BU14J5ffzUAx.exfil.hidden.io
+01:21:41,accounts.google.com
+01:21:41,docs.python.org
+01:21:42,cLWgClt7r4yfIuiU.exfil.hidden.io
+01:21:42,www.youtube.com
+01:21:43,registry.npmjs.org
+01:21:43,login.microsoft.com
+01:21:44,registry.npmjs.org
+01:21:44,accounts.google.com
+01:21:45,WnnkNt0b9evyrkIm.evil-c2.net
+01:21:45,m1QPocsupftl1XXh.tunnel.bad.io
+01:21:46,xqWwg37lv5sfNCpx.data-exfil.xyz
+01:21:46,He5qqSgxPTuNOQbp.secret-transfer.net
+01:21:47,imap.gmail.com
+01:21:47,isnz9ay2c7Jibzph.data-exfil.xyz
+01:21:48,gOvb5aZBkwA5BSp2.evil-c2.net
+01:21:48,smtp.gmail.com
+01:21:49,afP4Rlg1vCT7cqoz.exfil.hidden.io
+01:21:49,fonts.googleapis.com
+01:21:50,imap.gmail.com
+01:21:50,mail.google.com
+01:21:51,www.youtube.com
+01:21:51,www.stackoverflow.com
+01:21:52,api.github.com
+01:21:52,smtp.gmail.com
+01:21:53,QE3gHur2ObHBpqGN.c2server.ru
+01:21:53,static.cloudflareinsights.com
+01:21:54,api.github.com
+01:21:54,www.wikipedia.org
+01:21:55,outlook.live.com
+01:21:55,www.youtube.com
+01:21:56,mail.google.com
+01:21:56,cdn.cloudflare.com
+01:21:57,cdn.cloudflare.com
+01:21:57,teams.microsoft.com
+01:21:58,Edk3xesu0l0Agvt2.c2server.ru
+01:21:58,www.stackoverflow.com
+01:21:59,www.google.com
+01:21:59,fonts.googleapis.com
+01:22:00,www.stackoverflow.com
+01:22:00,GXzOOuRE7wSCytoC.c2server.ru
+01:22:01,update.googleapis.com
+01:22:01,www.stackoverflow.com
+01:22:02,www.google.com
+01:22:02,mail.google.com
+01:22:03,storage.azure.com
+01:22:03,pypi.org
+01:22:04,teams.microsoft.com
+01:22:04,update.googleapis.com
+01:22:05,static.cloudflareinsights.com
+01:22:05,update.googleapis.com
+01:22:06,cdn.cloudflare.com
+01:22:06,smtp.gmail.com
+01:22:07,www.wikipedia.org
+01:22:07,fonts.googleapis.com
+01:22:08,smtp.gmail.com
+01:22:08,www.google.com
+01:22:09,update.googleapis.com
+01:22:09,www.stackoverflow.com
+01:22:10,9ZLb2fxDUrxGZB8S.tunnel.bad.io
+01:22:10,Bcq3bzP0nVpYxyFx.tunnel.bad.io
+01:22:11,z8y9v56WNjKFslb7.tunnel.bad.io
+01:22:11,pypi.org
+01:22:12,mail.google.com
+01:22:12,www.youtube.com
+01:22:13,mouwFhrY70nYaaaC.tunnel.bad.io
+01:22:13,docs.python.org
+01:22:14,www.youtube.com
+01:22:15,static.cloudflareinsights.com
+01:22:15,www.google.com
+01:22:16,docs.python.org
+01:22:16,fonts.googleapis.com
+01:22:17,smtp.gmail.com
+01:22:17,ZWC2Tx2BjMHd0hh1.exfil.hidden.io
+01:22:18,pypi.org
+01:22:18,registry.npmjs.org
+01:22:19,www.youtube.com
+01:22:19,outlook.live.com
+01:22:20,login.microsoft.com
+01:22:20,JnaarGhKvCcgpxiI.exfil.hidden.io
+01:22:21,pypi.org
+01:22:21,static.cloudflareinsights.com
+01:22:22,cdn.cloudflare.com
+01:22:22,api.github.com
+01:22:23,accounts.google.com
+01:22:23,mail.google.com
+01:22:24,storage.azure.com
+01:22:24,www.google.com
+01:22:25,outlook.live.com
+01:22:25,storage.azure.com
+01:22:26,mail.google.com
+01:22:26,docs.python.org
+01:22:27,docs.python.org
+01:22:27,login.microsoft.com
+01:22:28,smtp.gmail.com
+01:22:28,pypi.org
+01:22:29,iJxnGNHuvdZprTYC.evil-c2.net
+01:22:30,Q8ZzQqw8d2LiZtEn.tunnel.bad.io
+01:22:30,t3nz8YRDTBSlE7tF.exfil.hidden.io
+01:22:31,cdn.cloudflare.com
+01:22:31,rs5t2OqxKLyLprxA.evil-c2.net
+01:22:32,static.cloudflareinsights.com
+01:22:32,registry.npmjs.org
+01:22:33,docs.python.org
+01:22:33,imap.gmail.com
+01:22:34,h2nX3zm6zZpTzut9.secret-transfer.net
+01:22:34,registry.npmjs.org
+01:22:35,registry.npmjs.org
+01:22:35,outlook.live.com
+01:22:36,fonts.googleapis.com
+01:22:36,WQOzEwh5g4AXwGix.secret-transfer.net
+01:22:37,www.google.com
+01:22:37,MAAMXp5dU42HVBsA.c2server.ru
+01:22:38,cdn.cloudflare.com
+01:22:39,www.google.com
+01:22:39,MaC08ivHyy8zTuxf.secret-transfer.net
+01:22:40,imap.gmail.com
+01:22:40,registry.npmjs.org
+01:22:41,www.google.com
+01:22:41,static.cloudflareinsights.com
+01:22:42,static.cloudflareinsights.com
+01:22:42,fonts.googleapis.com
+01:22:43,static.cloudflareinsights.com
+01:22:43,imap.gmail.com
+01:22:44,cdn.cloudflare.com
+01:22:44,www.google.com
+01:22:45,registry.npmjs.org
+01:22:45,accounts.google.com
+01:22:46,EgeYsEHSFlC5Rg0j.tunnel.bad.io
+01:22:46,www.wikipedia.org
+01:22:47,9hUGdcgEfNEBYMc8.evil-c2.net
+01:22:47,bJWxZ16UYyE7XCYv.c2server.ru
+01:22:48,cdn.cloudflare.com
+01:22:48,update.googleapis.com
+01:22:49,cdn.cloudflare.com
+01:22:49,accounts.google.com
+01:22:50,update.googleapis.com
+01:22:50,pypi.org
+01:22:51,fhXOFRkynG2blnts.evil-c2.net
+01:22:51,outlook.live.com
+01:22:52,imap.gmail.com
+01:22:52,AtvVGgJSEaVPlGVd.data-exfil.xyz
+01:22:53,www.stackoverflow.com
+01:22:53,www.wikipedia.org
+01:22:54,static.cloudflareinsights.com
+01:22:54,waOe8a3m9Olhb0NA.secret-transfer.net
+01:22:55,accounts.google.com
+01:22:55,teams.microsoft.com
+01:22:56,cdn.cloudflare.com
+01:22:56,pyG4Ons47r1FxVWd.exfil.hidden.io
+01:22:57,www.google.com
+01:22:57,NX3f8lchdxyZ376X.evil-c2.net
+01:22:58,ytrDrawDec6xfGi0.exfil.hidden.io
+01:22:58,www.stackoverflow.com
+01:22:59,update.googleapis.com
+01:22:59,smtp.gmail.com
+01:23:00,registry.npmjs.org
+01:23:00,accounts.google.com
+01:23:01,cdn.cloudflare.com
+01:23:02,teams.microsoft.com
+01:23:02,outlook.live.com
+01:23:03,www.stackoverflow.com
+01:23:03,ANMthWpu343xAFht.data-exfil.xyz
+01:23:04,sk3hhGRWFiRdLrl3.evil-c2.net
+01:23:04,static.cloudflareinsights.com
+01:23:05,cdn.cloudflare.com
+01:23:05,api.github.com
+01:23:06,cdn.cloudflare.com
+01:23:06,update.googleapis.com
+01:23:07,xQHmBd0XtjbEXzjh.evil-c2.net
+01:23:07,T2HwXinE9YF9SclF.exfil.hidden.io
+01:23:08,0tOGzzZHWOHnZIgr.evil-c2.net
+01:23:08,outlook.live.com
+01:23:09,imap.gmail.com
+01:23:09,www.stackoverflow.com
+01:23:10,www.stackoverflow.com
+01:23:10,www.youtube.com
+01:23:11,jADA7MmVjFP5OxUm.tunnel.bad.io
+01:23:11,mail.google.com
+01:25:00, word0.evil-c2.net
+01:25:01, word1.evil-c2.net
+01:25:02, word2.evil-c2.net
+01:25:03, word3.evil-c2.net
+01:25:04, word4.evil-c2.net
+01:25:05, word5.evil-c2.net
+01:25:06, word6.evil-c2.net
+01:25:07, word7.evil-c2.net
+01:25:08, word8.evil-c2.net
+01:25:09, word9.evil-c2.net
+01:25:10, word10.evil-c2.net
+01:25:11, word11.evil-c2.net
+01:25:12, word12.evil-c2.net
+01:25:13, word13.evil-c2.net
+01:25:14, word14.evil-c2.net
+01:25:15, word15.evil-c2.net
+01:25:16, word16.evil-c2.net
+01:25:17, word17.evil-c2.net
+01:25:18, word18.evil-c2.net
+01:25:19, word19.evil-c2.net
+01:25:20, word20.evil-c2.net
+01:25:21, word21.evil-c2.net
+01:25:22, word22.evil-c2.net
+01:25:23, word23.evil-c2.net
+01:25:24, word24.evil-c2.net
+01:25:25, word25.evil-c2.net
+01:25:26, word26.evil-c2.net
+01:25:36, word0.evil-c2.net
+01:25:37, word1.evil-c2.net
+01:25:38, word2.evil-c2.net
+01:25:39, word3.evil-c2.net
+01:25:40, word4.evil-c2.net
+01:25:41, word5.evil-c2.net
+01:25:42, word6.evil-c2.net
+01:25:43, word7.evil-c2.net
+01:25:44, word8.evil-c2.net
+01:25:45, word9.evil-c2.net
+01:25:46, word10.evil-c2.net
+01:25:47, word11.evil-c2.net
+01:25:48, word12.evil-c2.net
+01:25:49, word13.evil-c2.net
+01:25:50, word14.evil-c2.net
+01:25:51, word15.evil-c2.net
+01:25:52, word16.evil-c2.net
+01:25:53, word17.evil-c2.net

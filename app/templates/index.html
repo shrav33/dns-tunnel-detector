@@ -30,6 +30,7 @@
     .nav-item.active{background:rgba(0,212,255,.08);color:var(--accent);border-left-color:var(--accent);}
     .nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.6;flex-shrink:0;}
     .nav-badge{margin-left:auto;font-size:9px;background:var(--red);color:#fff;padding:1px 5px;border-radius:8px;}
+    .nav-badge-amber{margin-left:auto;font-size:9px;background:var(--amber);color:#000;padding:1px 5px;border-radius:8px;}
     .sidebar-status{padding:12px 16px;border-top:1px solid var(--border);}
     .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite;}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -38,12 +39,11 @@
     .topbar-left{display:flex;align-items:center;gap:12px;}
     .page-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:var(--text);letter-spacing:.06em;text-transform:uppercase;}
     .tb-badge{font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.06em;}
-    .tb-v3{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3);}
+    .tb-v4{background:rgba(255,170,0,.15);color:var(--amber);border:1px solid rgba(255,170,0,.3);}
     .tb-live{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3);}
     .tb-warn{background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.3);}
     .topbar-right{font-size:10px;color:var(--text3);}
     .content{padding:20px 24px;flex:1;}
-    /* CHANGE 1: stat-grid now 5 columns */
     .stat-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:20px;}
     .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
     .stat-card:hover{border-color:var(--border2);}
@@ -62,30 +62,43 @@
     .model-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent);}
     .model-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em;}
     #alert-banner{display:none;background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--red);animation:slideIn .3s ease;}
+    #session-banner{display:none;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--amber);animation:slideIn .3s ease;}
     @keyframes slideIn{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}
     #alert-banner.visible{display:flex;align-items:center;gap:10px;}
+    #session-banner.visible{display:flex;align-items:center;gap:10px;}
     .alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1s infinite;}
+    .session-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:pulse 1s infinite;}
     .panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;}
     .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .panel-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;}
     .panel-badge{font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2);}
+    .panel-badge-amber{font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.2);}
     .two-col{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px;}
     .two-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-    #log{height:300px;overflow-y:auto;font-size:11px;line-height:1.8;}
+    #log{height:280px;overflow-y:auto;font-size:11px;line-height:1.8;}
     #log::-webkit-scrollbar{width:3px;}
     #log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
     .log-normal{color:var(--green);}
     .log-tunnel{color:var(--red);font-weight:500;}
     .log-tunnel span{background:rgba(255,59,92,.08);padding:1px 6px;border-radius:3px;border-left:2px solid var(--red);display:block;}
-    /* CHANGE 2: whitelisted log style */
     .log-whitelisted{color:var(--text3);font-size:11px;}
-    #alerts-list{height:300px;overflow-y:auto;font-size:11px;}
+    .log-session{color:var(--amber);font-weight:500;}
+    .log-session span{background:rgba(255,170,0,.08);padding:1px 6px;border-radius:3px;border-left:2px solid var(--amber);display:block;}
+    #alerts-list{height:280px;overflow-y:auto;font-size:11px;}
     #alerts-list::-webkit-scrollbar{width:3px;}
     #alerts-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
     .alert-item{border-bottom:1px solid rgba(255,59,92,.1);padding:8px 0;}
     .alert-domain{color:var(--red);font-weight:500;word-break:break-all;font-size:11px;}
     .alert-meta{color:var(--text3);font-size:10px;margin-top:2px;}
     #no-alerts{color:var(--text3);font-size:11px;}
+    /* Session alerts panel */
+    #session-list{height:160px;overflow-y:auto;font-size:11px;}
+    #session-list::-webkit-scrollbar{width:3px;}
+    #session-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+    .session-item{border-bottom:1px solid rgba(255,170,0,.1);padding:8px 0;}
+    .session-registrar{color:var(--amber);font-weight:500;font-size:11px;}
+    .session-meta{color:var(--text3);font-size:10px;margin-top:2px;}
+    #no-session{color:var(--text3);font-size:11px;}
     .cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
     .cm-cell{border-radius:8px;padding:14px;text-align:center;}
     .cm-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
@@ -123,20 +136,21 @@
   </div>
   <nav class="nav">
     <div class="nav-section">Monitor</div>
-    <div class="nav-item active" onclick="navTo('sec-top', this)"><div class="nav-dot"></div>Live Dashboard</div>
-    <div class="nav-item" onclick="navTo('sec-log', this)"><div class="nav-dot"></div>Query Log</div>
-    <div class="nav-item" onclick="navTo('sec-alerts', this)"><div class="nav-dot"></div>Alerts <span class="nav-badge" id="nav-alert-count">0</span></div>
+    <div class="nav-item active" onclick="navTo('sec-top',this)"><div class="nav-dot"></div>Live Dashboard</div>
+    <div class="nav-item" onclick="navTo('sec-log',this)"><div class="nav-dot"></div>Query Log</div>
+    <div class="nav-item" onclick="navTo('sec-alerts',this)"><div class="nav-dot"></div>Alerts <span class="nav-badge" id="nav-alert-count">0</span></div>
+    <div class="nav-item" onclick="navTo('sec-session',this)"><div class="nav-dot"></div>Session Alerts <span class="nav-badge-amber" id="nav-session-count">0</span></div>
     <div class="nav-section">Analysis</div>
-    <div class="nav-item" onclick="navTo('sec-model', this)"><div class="nav-dot"></div>Model Stats</div>
-    <div class="nav-item" onclick="navTo('sec-evasion', this)"><div class="nav-dot"></div>Evasion Tests</div>
-    <div class="nav-item" onclick="navTo('sec-roc', this)"><div class="nav-dot"></div>ROC Curves</div>
+    <div class="nav-item" onclick="navTo('sec-model',this)"><div class="nav-dot"></div>Model Stats</div>
+    <div class="nav-item" onclick="navTo('sec-evasion',this)"><div class="nav-dot"></div>Evasion Tests</div>
+    <div class="nav-item" onclick="navTo('sec-roc',this)"><div class="nav-dot"></div>ROC Curves</div>
     <div class="nav-section">System</div>
-    <div class="nav-item" onclick="navTo('sec-top', this)"><div class="nav-dot"></div>Settings</div>
+    <div class="nav-item" onclick="navTo('sec-top',this)"><div class="nav-dot"></div>Settings</div>
   </nav>
   <div class="sidebar-status">
     <span class="status-dot"></span>
     <span style="font-size:10px;color:var(--text2);">System Active</span>
-    <div style="font-size:9px;color:var(--text3);margin-top:4px;">RF Model · 95.43% Accuracy</div>
+    <div style="font-size:9px;color:var(--text3);margin-top:4px;">RF Model + Session Detection</div>
   </div>
 </aside>
 
@@ -144,7 +158,7 @@
   <div class="topbar">
     <div class="topbar-left">
       <div class="page-title">Live Monitor</div>
-      <span class="tb-badge tb-v3">V3 — Model Comparison</span>
+      <span class="tb-badge tb-v4">V4 — Session Detection</span>
       <span class="tb-badge tb-live" id="topbar-status">● Connecting...</span>
     </div>
     <div class="topbar-right" id="topbar-time"></div>
@@ -152,7 +166,6 @@
 
   <div class="content">
 
-    <!-- CHANGE 3: 5th stat card added -->
     <div class="stat-grid" id="sec-top">
       <div class="stat-card sc-blue">
         <div class="stat-label">Total Queries</div>
@@ -165,14 +178,14 @@
         <div class="stat-sub">benign DNS queries</div>
       </div>
       <div class="stat-card sc-red">
-        <div class="stat-label">Tunnels Detected</div>
+        <div class="stat-label">ML Tunnels</div>
         <div class="stat-value sv-red" id="s-tunnel">0</div>
-        <div class="stat-sub">malicious queries flagged</div>
+        <div class="stat-sub">per-query detections</div>
       </div>
       <div class="stat-card sc-amber">
-        <div class="stat-label">Detection Rate</div>
-        <div class="stat-value sv-amber" id="s-rate">0%</div>
-        <div class="stat-sub">of all queries flagged</div>
+        <div class="stat-label">Session Tunnels</div>
+        <div class="stat-value sv-amber" id="s-session">0</div>
+        <div class="stat-sub">behavioural detections</div>
       </div>
       <div class="stat-card sc-gray">
         <div class="stat-label">Whitelisted</div>
@@ -190,7 +203,12 @@
 
     <div id="alert-banner">
       <div class="alert-dot"></div>
-      <span><strong>TUNNEL DETECTED</strong> &nbsp;<span id="alert-text"></span></span>
+      <span><strong>ML TUNNEL DETECTED</strong> &nbsp;<span id="alert-text"></span></span>
+    </div>
+
+    <div id="session-banner">
+      <div class="session-dot"></div>
+      <span><strong>SESSION TUNNEL DETECTED</strong> &nbsp;<span id="session-text"></span></span>
     </div>
 
     <div class="panel">
@@ -211,11 +229,24 @@
       </div>
       <div class="panel" id="sec-alerts">
         <div class="panel-header">
-          <div class="panel-title">Alerts History</div>
+          <div class="panel-title">ML Alerts</div>
           <div class="panel-badge" id="alert-count-badge">0 alerts</div>
         </div>
         <div id="alerts-list"><div id="no-alerts">No tunnels detected yet.</div></div>
       </div>
+    </div>
+
+    <!-- Session detection panel -->
+    <div class="panel" id="sec-session" style="border-color:rgba(255,170,0,.2);">
+      <div class="panel-header">
+        <div class="panel-title">Session-level Detection — Behavioural Analysis</div>
+        <div class="panel-badge-amber" id="session-badge">0 session alerts · threshold: 15 queries / 60s</div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.6;">
+        Tracks query frequency per registrar over a 60-second sliding window.
+        Fires when any unknown registrar receives ≥15 queries — catches slow-drip and word-based evasion tunnels that per-query ML misses.
+      </div>
+      <div id="session-list"><div id="no-session" style="color:var(--text3);font-size:11px;">No session tunnels detected yet.</div></div>
     </div>
 
     <div class="two-equal">
@@ -249,9 +280,7 @@
     </div>
 
     <div class="panel" id="sec-evasion">
-      <div class="panel-header">
-        <div class="panel-title">Evasion Attack Testing — Where The Model Struggles</div>
-      </div>
+      <div class="panel-header"><div class="panel-title">Evasion Attack Testing — Where The Model Struggles</div></div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:14px;line-height:1.7;" id="evasion-summary"></div>
       <div class="ev-grid" id="evasion-grid"></div>
     </div>
@@ -265,16 +294,15 @@
 </main>
 
 <script>
-  /* CHANGE 4: added whitelisted counter */
-  let total=0,normal=0,tunnels=0,whitelisted=0,alertTimer=null;
+  let total=0,normal=0,tunnels=0,whitelisted=0,sessionTunnels=0,alertTimer=null,sessionTimer=null;
   const maxPts=40;
   const tlNormal=Array(maxPts).fill(0),tlTunnel=Array(maxPts).fill(0),tlLabels=Array(maxPts).fill('');
   let tlChart=null,tickN=0,tickT=0;
 
-  function navTo(id, el) {
-    const target = document.getElementById(id);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  function navTo(id,el){
+    const target=document.getElementById(id);
+    if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     el.classList.add('active');
   }
 
@@ -288,10 +316,8 @@
       ]},
       options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},
         plugins:{legend:{display:true,labels:{color:'#94a3b8',font:{size:10,family:'JetBrains Mono'},boxWidth:10}}},
-        scales:{
-          x:{ticks:{color:'#4a6080',font:{size:9},maxTicksLimit:8},grid:{color:'#1e2d45'}},
-          y:{ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'},beginAtZero:true}
-        }
+        scales:{x:{ticks:{color:'#4a6080',font:{size:9},maxTicksLimit:8},grid:{color:'#1e2d45'}},
+          y:{ticks:{color:'#4a6080',font:{size:9}},grid:{color:'#1e2d45'},beginAtZero:true}}
       }
     });
   }
@@ -374,11 +400,13 @@
     document.getElementById('s-total').textContent=total;
     document.getElementById('s-normal').textContent=normal;
     document.getElementById('s-tunnel').textContent=tunnels;
+    document.getElementById('s-session').textContent=sessionTunnels;
     document.getElementById('s-white').textContent=whitelisted;
-    document.getElementById('s-rate').textContent=(total>0?Math.round(tunnels/total*100):0)+'%';
     document.getElementById('log-count').textContent=total+' queries';
     document.getElementById('alert-count-badge').textContent=tunnels+' alerts';
     document.getElementById('nav-alert-count').textContent=tunnels;
+    document.getElementById('nav-session-count').textContent=sessionTunnels;
+    document.getElementById('session-badge').textContent=sessionTunnels+' session alerts · threshold: 15 queries / 60s';
   }
 
   function showAlertBanner(domain,confidence){
@@ -387,6 +415,24 @@
     banner.classList.add('visible');
     clearTimeout(alertTimer);
     alertTimer=setTimeout(()=>banner.classList.remove('visible'),5000);
+  }
+
+  function showSessionBanner(registrar,count){
+    const banner=document.getElementById('session-banner');
+    document.getElementById('session-text').textContent=registrar+' — '+count+' queries in 60s window';
+    banner.classList.add('visible');
+    clearTimeout(sessionTimer);
+    sessionTimer=setTimeout(()=>banner.classList.remove('visible'),6000);
+  }
+
+  function addToSessionList(timestamp,registrar,count){
+    const list=document.getElementById('session-list');
+    const noSession=document.getElementById('no-session');
+    if(noSession)noSession.remove();
+    const item=document.createElement('div');
+    item.className='session-item';
+    item.innerHTML=`<div class="session-registrar">⚠ ${registrar}</div><div class="session-meta">${timestamp} &nbsp;·&nbsp; ${count} queries in 60s window &nbsp;·&nbsp; SESSION TUNNEL</div>`;
+    list.insertBefore(item,list.firstChild);
   }
 
   function addToAlertsList(timestamp,domain,confidence){
@@ -402,9 +448,12 @@
   function addToLog(d){
     const log=document.getElementById('log');
     const row=document.createElement('div');
-    if(d.prediction===1){
+    if(d.prediction===2){
+      row.className='log-session';
+      row.innerHTML=`<span>${d.timestamp} &nbsp;[SESSION]&nbsp; ${d.registrar} &nbsp;(${d.count} queries/60s)</span>`;
+    } else if(d.prediction===1){
       row.className='log-tunnel';
-      row.innerHTML=`<span>${d.timestamp} &nbsp;[TUNNEL]&nbsp; ${d.domain} &nbsp;(${d.confidence}%)</span>`;
+      row.innerHTML=`<span>${d.timestamp} &nbsp;[ML TUNNEL]&nbsp; ${d.domain} &nbsp;(${d.confidence}%)</span>`;
       tickT++;
     } else if(d.prediction===-1){
       row.className='log-whitelisted';
@@ -429,9 +478,19 @@
       try{
         const d=JSON.parse(e.data);
         total++;
-        if(d.prediction===1){tunnels++;showAlertBanner(d.domain,d.confidence);addToAlertsList(d.timestamp,d.domain,d.confidence);}
-        else if(d.prediction===-1){whitelisted++;}
-        else{normal++;}
+        if(d.prediction===2){
+          sessionTunnels++;
+          showSessionBanner(d.registrar,d.count);
+          addToSessionList(d.timestamp,d.registrar,d.count);
+        } else if(d.prediction===1){
+          tunnels++;
+          showAlertBanner(d.domain,d.confidence);
+          addToAlertsList(d.timestamp,d.domain,d.confidence);
+        } else if(d.prediction===-1){
+          whitelisted++;
+        } else {
+          normal++;
+        }
         updateStats();addToLog(d);
       }catch(err){console.error(err);}
     };
@@ -444,10 +503,12 @@
 
   function resetDemo(){
     fetch('/reset',{method:'POST'}).then(()=>{
-      total=0;normal=0;tunnels=0;whitelisted=0;updateStats();
+      total=0;normal=0;tunnels=0;whitelisted=0;sessionTunnels=0;updateStats();
       document.getElementById('log').innerHTML='';
       document.getElementById('alerts-list').innerHTML='<div id="no-alerts">No tunnels detected yet.</div>';
+      document.getElementById('session-list').innerHTML='<div id="no-session" style="color:var(--text3);font-size:11px;">No session tunnels detected yet.</div>';
       document.getElementById('alert-banner').classList.remove('visible');
+      document.getElementById('session-banner').classList.remove('visible');
       tlNormal.fill(0);tlTunnel.fill(0);
       if(tlChart)tlChart.update();
     });

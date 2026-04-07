@@ -4,6 +4,8 @@ import json
 import time
 import csv
 import io
+import threading
+from collections import defaultdict, deque
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'model'))
 from flask import Flask, Response, render_template, request, jsonify
 import joblib
@@ -19,7 +21,7 @@ EVASION_PATH    = os.path.join(os.path.dirname(__file__), '..', 'model', 'evasio
 WHITELIST_PATH  = os.path.join(os.path.dirname(__file__), '..', 'whitelist.json')
 
 model = joblib.load(MODEL_PATH)
-print("V3 Model loaded successfully.")
+print("V4 Model loaded successfully.")
 
 # ── Load whitelist ──
 def load_whitelist():
@@ -41,6 +43,59 @@ def is_whitelisted(domain):
         if domain == trusted or domain.endswith('.' + trusted):
             return True
     return False
+
+def get_registrar(domain):
+    """Extract the registrar (last two parts) from a domain."""
+    parts = domain.strip().lower().rstrip('.').split('.')
+    if len(parts) >= 2:
+        return '.'.join(parts[-2:])
+    return domain
+
+# ── Session-level detection ──
+SESSION_WINDOW   = 60    # seconds to look back
+SESSION_THRESHOLD = 15   # queries to same registrar in window = tunnel
+session_window   = defaultdict(deque)   # registrar -> deque of timestamps
+session_lock     = threading.Lock()
+session_alerts   = []                   # session-level detections
+session_events   = deque(maxlen=500)    # SSE events for session alerts
+
+def record_query(domain, timestamp_str):
+    """Add query to session window and check threshold."""
+    registrar = get_registrar(domain)
+
+    # Skip whitelisted registrars
+    if is_whitelisted(registrar) or is_whitelisted(domain):
+        return None
+
+    now = time.time()
+    with session_lock:
+        dq = session_window[registrar]
+        dq.append(now)
+        # Remove entries older than SESSION_WINDOW
+        while dq and dq[0] < now - SESSION_WINDOW:
+            dq.popleft()
+        count = len(dq)
+
+    if count >= SESSION_THRESHOLD:
+        # Only fire once per registrar per 30 seconds
+        already_alerted = any(
+            a['registrar'] == registrar and
+            time.time() - a['time'] < 30
+            for a in session_alerts[-10:]
+        )
+        if not already_alerted:
+            alert = {
+                'timestamp': timestamp_str,
+                'registrar': registrar,
+                'count': count,
+                'window': SESSION_WINDOW,
+                'type': 'SESSION_TUNNEL'
+            }
+            session_alerts.append({**alert, 'time': time.time()})
+            session_events.append(alert)
+            print(f"[SESSION ALERT] {registrar} — {count} queries in {SESSION_WINDOW}s")
+            return alert
+    return None
 
 alert_store = []
 
@@ -76,7 +131,12 @@ def generate_events():
                 lines_seen += 1
                 continue
 
-            # ── ML classification ──
+            # ── Session-level detection ──
+            session_alert = record_query(domain, timestamp)
+            if session_alert:
+                yield f"data: {json.dumps({**session_alert, 'prediction': 2})}\n\n"
+
+            # ── Per-query ML classification ──
             try:
                 features = extract_features(domain)
                 prediction = int(model.predict([features])[0])
@@ -84,6 +144,7 @@ def generate_events():
                 confidence = round(confidence * 100, 1)
             except Exception:
                 continue
+
             event = {
                 'timestamp': timestamp,
                 'domain': domain,
@@ -107,8 +168,12 @@ def stream():
 
 @app.route('/reset', methods=['POST'])
 def reset():
-    global alert_store
+    global alert_store, session_alerts
     alert_store = []
+    session_alerts = []
+    with session_lock:
+        session_window.clear()
+    session_events.clear()
     open(LOG_PATH, 'w').close()
     return 'ok'
 
@@ -144,6 +209,18 @@ def get_whitelist():
     return jsonify({
         'count': len(WHITELIST),
         'domains': sorted(list(WHITELIST))
+    })
+
+@app.route('/session-alerts')
+def get_session_alerts():
+    return jsonify({
+        'alerts': [
+            {k: v for k, v in a.items() if k != 'time'}
+            for a in session_alerts[-20:]
+        ],
+        'total': len(session_alerts),
+        'threshold': SESSION_THRESHOLD,
+        'window': SESSION_WINDOW
     })
 
 @app.route('/download-alerts')
