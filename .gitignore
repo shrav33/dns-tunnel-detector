@@ -4,3 +4,10 @@ __pycache__/
 *.pyo
 *.pyd
 *.log 
+model/dns_rf_model.pkl  
+model/random_forest_model.pkl  
+model/xgboost_model.pkl  
+model/logistic_regression_model.pkl  
+model/scaler.pkl  
+data/BCCC-CIC-Bell-DNS-EXF/  
+data/BCCC-CIC-Bell-DNS-Mal/  
