@@ -1,115 +1,75 @@
-# DNS Tunnel Detector
+# DNS Tunnel Detection System
 
-A machine learning system that detects DNS tunneling attacks in real time.
-Built as a cybersecurity project demonstrating the attacker → victim → detector scenario.
+A real-time machine learning-based network security tool that detects DNS tunneling attacks — a technique used by attackers to covertly exfiltrate data and maintain backdoor access by hiding malicious traffic inside routine DNS queries.
 
 ## What it does
 
-DNS tunneling is a technique attackers use to secretly send stolen data out of a
-network by hiding it inside DNS queries — a protocol that is almost never blocked
-by firewalls. This system uses a Random Forest ML model to detect those suspicious
-queries in real time and display alerts on a live dashboard.
+DNS tunneling exploits the fact that port 53 is left open by virtually every firewall. This system monitors DNS traffic in real time and classifies each query through a three-layer detection pipeline, alerting security analysts to suspicious activity through a live web dashboard.
 
-## Demo
+## Three-layer detection
 
-The project runs as a three-role simulation:
-- **Attacker** — a Python script simulating malware sending tunnel queries
-- **Victim** — the local machine the attacker script runs on
-- **Detector** — a Flask dashboard that catches tunnel queries as they arrive
-
-## Project structure
-```
-dns-tunnel-detector/
-├── generate_dataset.py   # generates labeled training data
-├── attacker_sim.py       # simulates malware sending DNS tunnel queries
-├── data/
-│   └── dns_dataset.csv   # 1000 labeled DNS queries (700 normal, 300 tunnel)
-├── model/
-│   ├── features.py       # extracts 5 features from each domain name
-│   ├── train.py          # trains the Random Forest model
-│   └── rf_model.pkl      # saved trained model
-├── shared/
-│   └── dns_log.txt       # shared log file between attacker and detector
-└── app/
-    ├── app.py            # Flask backend with live SSE stream
-    └── templates/
-        └── index.html    # live dashboard UI
-```
-
-## How to run
-
-**1. Clone the repository**
-```
-git clone https://github.com/shrav33/dns-tunnel-detector.git
-cd dns-tunnel-detector
-```
-
-**2. Create and activate virtual environment**
-```
-python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # Mac / Linux
-```
-
-**3. Install libraries**
-```
-pip install pandas scikit-learn flask matplotlib seaborn joblib
-```
-
-**4. Generate dataset and train model**
-```
-python generate_dataset.py
-python model/train.py
-```
-
-**5. Start the detector (Terminal 1)**
-```
-python app/app.py
-```
-
-**6. Start the attacker simulator (Terminal 2)**
-```
-python attacker_sim.py
-```
-
-**7. Open the dashboard**
-```
-http://127.0.0.1:5000
-```
+- **Layer 1 — Whitelist:** 39 trusted domains bypass ML classification entirely, eliminating false positives on known-good infrastructure
+- **Layer 2 — ML Classification:** Random Forest model trained on 20 statistical features classifies each query as benign or tunnel with sub-100ms latency
+- **Layer 3 — Session Detection:** 60-second sliding window tracks query frequency per registrar, fires alert when threshold of 15 is exceeded — catches evasion-style attacks that per-query ML misses entirely
 
 ## Model performance
 
-- **Accuracy:** 100% on generated dataset
-- **Precision:** 1.00 (no false alarms)
-- **Recall:** 1.00 (no missed tunnels)
-- **Top features:** subdomain length (43.6%), digit ratio (30.5%), total length (19.2%)
+Trained on the BCCC-CIC-Bell-DNS-2024 dataset — 4,153,762 real DNS traffic records from the Canadian Institute for Cybersecurity.
 
-## Features extracted per query
+- Random Forest — 95.43% accuracy, ROC-AUC 0.9607 (production model)
+- XGBoost — 93.82% accuracy, ROC-AUC 0.9458
+- Logistic Regression — 88.38% accuracy, ROC-AUC 0.9049
 
-| Feature | Description |
-|---|---|
-| total_length | Total character count of domain |
-| entropy | Randomness score — encoded data scores high |
-| subdomain_count | Number of dots in domain |
-| digit_ratio | Fraction of characters that are digits |
-| subdomain_len | Length of the leftmost subdomain part |
+## Evasion testing
 
-## Future work (V2 roadmap)
+Tested across 8 attack types and 1,600 domains:
 
-- Retrain on real labeled dataset (CIRA-CIC-DoHBrw-2020)
-- Add model comparison (Random Forest vs XGBoost vs Logistic Regression)
-- Add entropy distribution charts to dashboard
-- Test against evasion techniques
+- Hex encoded tunnel — 88% detected
+- Obvious base64 tunnel — 62.5% detected
+- Numeric tunnel — 42.5% detected
+- Mimicry, short word, slow drip, two-word, three-word tunnels — 0% by ML alone, caught by session detection layer
+- Average detection rate across all 8 types: 24.1%
+
+## Project structure
+dns-tunnel-detector/
+├── app/
+│   ├── app.py                  Flask backend — SSE streaming, detection pipeline
+│   └── templates/index.html    Live dashboard — Chart.js, real-time alerts
+├── model/
+│   ├── train.py                Trains Random Forest on CIC dataset
+│   ├── compare_models.py       Three-model comparison
+│   ├── features.py             Extracts 20 features per DNS query
+│   ├── model_stats.json        Accuracy, confusion matrix, feature importances
+│   ├── comparison_results.json ROC curve data for all 3 models
+│   └── evasion_results.json    8 attack type evasion test results
+├── shared/dns_log.txt          Message bus between simulator and backend
+├── whitelist.json              39 trusted domains
+├── attacker_sim.py             Mixed benign + tunnel traffic simulator
+├── evasion_tester.py           8 attack type evasion tester
+├── session_test.py             Session detection validator
+└── requirements.txt
+
+> Note: trained model files (.pkl) and raw dataset CSVs are excluded due to file size limits. Download the dataset from Kaggle (BCCC-CIC-Bell-DNS-2024) and run model/train.py to regenerate.
+
+## How to run
+
+1. Clone the repo and activate virtual environment
+2. Install dependencies: pip install -r requirements.txt
+3. Download BCCC-CIC-Bell-DNS-2024 dataset from Kaggle into data/ folder
+4. Train the model: python model/train.py
+5. Start the detector: python app/app.py
+6. Start the simulator: python attacker_sim.py
+7. Open the dashboard: http://127.0.0.1:5000
+
+## Dashboard features
+
+- Live query log colour coded by classification — green normal, red ML tunnel, amber session tunnel, grey trusted
+- ML tunnel alerts with domain name, timestamp, and confidence score
+- Session tunnel alerts panel showing registrar and query count
+- Feature importance chart, ROC curves for all 3 models
+- Model comparison table, evasion attack results panel
+- Reset session button and CSV alert export
 
 ## Tech stack
 
-Python · scikit-learn · Flask · pandas · HTML/CSS/JavaScript
-```
-
----
-
-After pasting and saving, run:
-```
-git add .
-git commit -m "Add README"
-git push
+Python · Flask · scikit-learn · XGBoost · pandas · Scapy · Chart.js
